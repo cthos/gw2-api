@@ -1,0 +1,19 @@
+{
+  "name": "gw2-api",
+  "version": "1.0.0",
+  "description": "GuildWars 2 API interface",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "promise": "^7.0.4",
+    "request": "^2.67.0"
+  },
+  "keywords": [
+    "gw2",
+    "api"
+  ],
+  "author": "cthos",
+  "license": "ISC"
+}
