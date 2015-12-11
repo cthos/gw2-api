@@ -86,4 +86,4 @@ GW2API.prototype = {
 	}
 }
 
-module.exports = new GW2API();
+module.exports = GW2API;
