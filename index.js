@@ -1,4 +1,4 @@
-var gw2 = require('./gw2-api');
+var gw2 = require('./src/gw2-api');
 var memStore = function () {};
 
 memStore.prototype = {
