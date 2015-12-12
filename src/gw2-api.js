@@ -43,6 +43,19 @@ GW2API.prototype = {
 		return this.callAPI('/continents');
 	},
 	
+	getItems : function (itemIds) {
+		var params = {};
+		var url = '/items';
+		
+		if (typeof itemIds === 'number') {
+			url += '/' + itemIds;
+		} else if (Array.isArray(itemIds)) {
+			params['ids'] = itemIds.join(',');
+		}
+		
+		return this.callAPI(url, params, false);
+	},
+	
 	/**
 	 * Makes a call to the GW2 API.
 	 * 
@@ -74,10 +87,14 @@ GW2API.prototype = {
 		
 		return new Promise(function (fulfill, reject) {
 			request.get(options).on('response', function(response) {
+				var dataStream = '';
 				response.on('data', function (data) {
-					var data = JSON.parse(data);
+					dataStream += data;
+				}).on('end', function() {
+					var data = JSON.parse(dataStream);
 					fulfill(data);
 				});
+				
 			})
 			.on('error', function(error) {
 				reject(error);	
