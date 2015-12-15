@@ -1,2 +1,4 @@
 node_modules
 auth-test.js
+.vagrant
+Vagrantfile
