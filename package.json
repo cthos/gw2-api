@@ -4,7 +4,7 @@
   "description": "GuildWars 2 API interface",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha test"
+    "test": "./node_modules/mocha/bin/mocha test --timeout=10000"
   },
   "dependencies": {
     "promise": "^7.0.4",
