@@ -22,7 +22,7 @@ describe('GW2API', function () {
 			});
 		});
 		
-		it('Should get as single item', function () {
+		it('Should get a single item', function () {
 			return api.getItems(15).then(function (res) {
 				assert.equal(Array.isArray(res), false);
 				assert.equal(res.name, "Abomination Hammer");
@@ -31,6 +31,51 @@ describe('GW2API', function () {
 		
 		it('Should get multiple items', function () {
 			return api.getItems([15, 411]).then(function (res) {
+				assert.equal(Array.isArray(res), true);
+				assert.equal(res.length, 2);
+			});
+		});
+	});
+	
+	describe('Materials', function () {
+		it ('Should have materials', function () {
+			return api.getMaterials().then(function (res) {
+				assert.equal(res.length > 0, true);
+			});
+		});
+		
+		it('Should get a single material', function () {
+			return api.getMaterials(5).then(function (res) {
+				assert.equal(Array.isArray(res), false);
+				assert.equal(res.name, "Cooking Materials");
+			});
+		});
+		
+		it('Should get multiple materials', function () {
+			return api.getMaterials([5, 6]).then(function (res) {
+				assert.equal(Array.isArray(res), true);
+				assert.equal(res.length, 2);
+				assert.equal(res[0].name, "Cooking Materials");
+			});
+		});
+	});
+	
+	describe('Recipes', function () {
+		it ('Should have recipes', function () {
+			return api.getRecipes().then(function (res) {
+				assert.equal(res.length > 0, true);
+			});
+		});
+		
+		it('Should get a single recipe', function () {
+			return api.getRecipes(7319).then(function (res) {
+				assert.equal(Array.isArray(res), false);
+				assert.equal(res.output_item_id, 46742);
+			});
+		});
+		
+		it('Should get multiple recipes', function () {
+			return api.getRecipes([1, 2]).then(function (res) {
 				assert.equal(Array.isArray(res), true);
 				assert.equal(res.length, 2);
 			});

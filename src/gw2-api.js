@@ -35,8 +35,13 @@ GW2API.prototype = {
 		return this.storage.getItem('apiKey');
 	},
 	
-	getCharacters : function () {
-		return this.callAPI('/characters');
+	getCharacters : function (characterName) {
+		var endpoint = '/characters';
+		
+		if (typeof characterName !== 'undefined') {
+			endpoint += '/' + encodeURIComponent(characterName);
+		}
+		return this.callAPI(endpoint);
 	},
 	
 	getContinents : function () {
@@ -44,16 +49,36 @@ GW2API.prototype = {
 	},
 	
 	getItems : function (itemIds) {
+		return this.getOneOrMany('/items', itemIds, false);
+	},
+	
+	getMaterials : function (materialIds) {		
+		return this.getOneOrMany('/materials', materialIds, false);
+	},
+	
+	getRecipes : function (recipeIds) {
+		return this.getOneOrMany('/recipes', recipeIds, false);
+	},
+	
+	/**
+	 * Helper function to do the common endpoint/{id} or ?ids={}
+	 * 
+	 * @param string endpoint
+	 * @param mixed ids
+	 * @param boolean requiresAuth
+	 * 
+	 * @return Promise
+	 */
+	getOneOrMany : function(endpoint, ids, requiresAuth) {
 		var params = {};
-		var url = '/items';
 		
-		if (typeof itemIds === 'number') {
-			url += '/' + itemIds;
-		} else if (Array.isArray(itemIds)) {
-			params['ids'] = itemIds.join(',');
+		if (typeof ids === 'number') {
+			endpoint += '/' + ids;
+		} else if (Array.isArray(ids)) {
+			params['ids'] = ids.join(',');
 		}
 		
-		return this.callAPI(url, params, false);
+		return this.callAPI(endpoint, params, requiresAuth);
 	},
 	
 	/**
