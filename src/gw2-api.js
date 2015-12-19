@@ -4,6 +4,7 @@ var request = require('request');
 
 var GW2API = function () {
   this.storage = typeof localStorage === "undefined" ? null : localStorage;
+  this.lang = 'en_US';
 }
 
 GW2API.prototype = {
@@ -16,6 +17,15 @@ GW2API.prototype = {
   
   getStorage: function () {
     return this.storage;
+  },
+  
+  setLang : function (langCode) {
+    this.lang = langCode;
+    return this;
+  },
+  
+  getLang: function () {
+    return this.lang;
   },
   
   /**
@@ -60,6 +70,14 @@ GW2API.prototype = {
     return this.getOneOrMany('/recipes', recipeIds, false);
   },
   
+  getAchievements : function (achievementIds) {
+    return this.getOneOrMany('/achievements', achievementIds, false, {"lang": this.getLang()});
+  },
+  
+  getDailyAchievements : function () {
+    return this.callAPI('/achievements/daily', {"lang": this.getLang()}, false);
+  },
+  
   /**
    * Helper function to do the common endpoint/{id} or ?ids={}
    * 
@@ -69,13 +87,17 @@ GW2API.prototype = {
    * 
    * @return Promise
    */
-  getOneOrMany : function(endpoint, ids, requiresAuth) {
+  getOneOrMany : function(endpoint, ids, requiresAuth, otherParams) {
     var params = {};
     
     if (typeof ids === 'number') {
       endpoint += '/' + ids;
     } else if (Array.isArray(ids)) {
       params['ids'] = ids.join(',');
+    }
+    
+    if (typeof otherParams === 'object') {
+      Object.assign(params, otherParams);
     }
     
     return this.callAPI(endpoint, params, requiresAuth);

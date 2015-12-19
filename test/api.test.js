@@ -82,7 +82,24 @@ describe('GW2API', function () {
     });
   });
   
-  describe('Daily Achievements', function () {
+  describe('Achievements', function () {
+    it('Should get achievements', function () {
+      return api.getAchievements().then(function (res) {
+        assert.equal(res.length > 0, true);
+      });
+    });
     
+    it('Should get a single achievement', function () {
+      return api.getAchievements(1344).then(function (res) {
+        assert.equal(res.name, "Live on the Edge");
+      });
+    });
+    
+    it('Should return daily achievements', function () {
+      return api.getDailyAchievements().then(function (res) {
+        assert.equal(res.pve.length > 0, true);
+        assert.equal(typeof res.pve[0], 'object');
+      });
+    });
   });
 });
