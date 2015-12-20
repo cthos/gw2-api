@@ -1,10 +1,13 @@
 var http = require('http');
 var Promise = require('promise');
 var request = require('request');
+var _ = require('underscore');
+var md5 = require('js-md5');
 
 var GW2API = function () {
   this.storage = typeof localStorage === "undefined" ? null : localStorage;
   this.lang = 'en_US';
+  this.cache = this.storeInCache = false;
 }
 
 GW2API.prototype = {
@@ -26,6 +29,20 @@ GW2API.prototype = {
   
   getLang: function () {
     return this.lang;
+  },
+  
+  getCache: function () {
+    return this.cache;
+  },
+  
+  setCache: function (cache) {
+    this.cache = this.storeInCache = cache;
+    return this;
+  },
+  
+  setStoreInCache: function (storeInCache) {
+    this.storeInCache = storeInCache;
+    return this;
   },
   
   /**
@@ -93,7 +110,7 @@ GW2API.prototype = {
     if (typeof ids === 'number') {
       endpoint += '/' + ids;
     } else if (Array.isArray(ids)) {
-      params['ids'] = ids.join(',');
+      params['ids'] = ids.sort().join(',');
     }
     
     if (typeof otherParams === 'object') {
@@ -132,6 +149,26 @@ GW2API.prototype = {
       }
     }
     
+    var keys = _.keys(params).sort();
+    var tmpArr = [];
+    for (var i = 0, len = keys.length; i < len; i++) {
+      tmpArr.push(keys[i] + "=" + params[keys[i]]);
+    }
+    
+    var keystr = '';
+    if (tmpArr.length > 0) {
+      keystr = '?' + tmpArr.join('&');
+    }
+    
+    var cacheKey = md5(endpoint + keystr);
+    var cachedItem;
+    
+    if (this.cache && (cachedItem = this.storage.getItem(cacheKey))) {
+      return new Promise(function (fulfill, reject) { fulfill(cachedItem); });
+    }
+    
+    var that = this;
+    
     return new Promise(function (fulfill, reject) {
       request.get(options).on('response', function(response) {
         var dataStream = '';
@@ -139,6 +176,11 @@ GW2API.prototype = {
           dataStream += data;
         }).on('end', function() {
           var data = JSON.parse(dataStream);
+          
+          if (that.storeInCache) {
+            that.storage.setItem(cacheKey, data);
+          }
+          
           fulfill(data);
         });
         
