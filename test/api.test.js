@@ -1,5 +1,6 @@
 var assert = require('assert');
 var gw2 = require('../index');
+var md5 = require('js-md5');
 
 var api = new gw2.gw2();
 var mem = new gw2.memStore();
@@ -11,6 +12,59 @@ describe('GW2API', function () {
     it('Should have 2 contients', function () {
       return api.getContinents().then(function(res) {
         assert.equal(res.length, 2);
+      });
+    });
+  });
+  
+  describe('Cache', function () {
+    before(function () {
+      api.setCache(true);
+    });
+    
+    after(function () {
+      api.setCache(false);
+    });
+    
+    it ('Should store continents in cache', function () {
+      return api.getContinents().then(function(res) {
+        var continents = api.getStorage().getItem(md5('/continents'));
+        assert.equal(continents.length, 2);
+        assert.equal(res, continents);
+      }).then(function (res) {
+        
+      });
+    });
+    
+    it ('Should return different results on single item calls', function () {
+      var itemResult1;
+      
+      return api.getItems(15).then(function (res) {
+        itemResult1 = res;
+        return api.getItems(411);
+      }).then(function (res) {
+        assert.notEqual(itemResult1.name, res.name);
+      });
+    });
+    
+     it ('Should return different results on multiple item calls', function () {
+      var itemResult1;
+      
+      return api.getItems([15, 411]).then(function (res) {
+        itemResult1 = res;
+        return api.getItems([15, 211]);
+      }).then(function (res) {
+        assert.notEqual(itemResult1, res);
+      });
+    });
+    
+    it ('Should return the same result on different id orders', function () {
+      var itemResult1;
+      
+      return api.getItems([15, 411]).then(function (res) {
+        itemResult1 = res;
+        return api.getItems([411, 15]);
+      }).then(function (res) {
+        assert.equal(itemResult1, res);
       });
     });
   });

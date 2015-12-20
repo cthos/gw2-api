@@ -7,8 +7,10 @@
     "test": "./node_modules/mocha/bin/mocha test --timeout=10000"
   },
   "dependencies": {
+    "js-md5": "^0.3.0",
     "promise": "^7.0.4",
-    "request": "^2.67.0"
+    "request": "^2.67.0",
+    "underscore": "^1.8.3"
   },
   "keywords": [
     "gw2",
