@@ -71,6 +71,34 @@ GW2API.prototype = {
     return this.callAPI(endpoint);
   },
   
+  getWallet : function (handleCurrencyTranslation) {
+    if (!handleCurrencyTranslation) {
+      return this.callAPI('/account/wallet');
+    }
+    
+    var that = this;
+    
+    return this.callAPI('/account/wallet').then(function (res) {
+      var walletCurrencies = res;
+      var lookupIds = [];
+      for (var i = 0, len = res.length; i < len; i++) {
+        lookupIds.push(res[i].id);
+      }
+      
+      return that.getCurrencies(lookupIds).then(function (res) {
+        for (var i = 0, len = res.length; i < len; i++) {
+          for (var x = 0, xlen = walletCurrencies.length; x < xlen; x++) {
+            if (res[i].id == walletCurrencies[x].id) {
+              Object.assign(walletCurrencies[x], res[i]);
+              break;
+            }
+          }
+        }
+        return walletCurrencies;
+      });
+    });
+  },
+  
   getContinents : function () {
     return this.callAPI('/continents');
   },
@@ -85,6 +113,10 @@ GW2API.prototype = {
   
   getRecipes : function (recipeIds) {
     return this.getOneOrMany('/recipes', recipeIds, false);
+  },
+  
+  getCurrencies : function (currencyIds) {
+    return this.getOneOrMany('/currencies', currencyIds, false);
   },
   
   getAchievements : function (achievementIds) {
