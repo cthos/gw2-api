@@ -69,6 +69,27 @@ describe('GW2API', function () {
     });
   });
   
+  describe('Currencies', function () {
+    it('Should return a list of currencies', function () {
+      return api.getCurrencies().then(function (res) {
+        assert.equal(res.length > 0, true);
+      });
+    });
+    
+    it('Should Return a single currency', function () {
+      return api.getCurrencies(1).then(function (currency) {
+        assert.equal(currency.name, 'Coin');
+      }); 
+    });
+    
+    it('Should Return multiple currency', function () {
+      return api.getCurrencies([1, 2]).then(function (res) {
+        assert.equal(res[0].name, 'Coin');
+        assert.equal(res[1].name, 'Karma');
+      }); 
+    });
+  });
+  
   describe('Items', function () {
     it ('Should have items', function () {
       return api.getItems().then(function (res) {
