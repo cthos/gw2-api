@@ -196,6 +196,7 @@ GW2API.prototype = {
     var cachedItem;
     
     if (this.cache && (cachedItem = this.storage.getItem(cacheKey))) {
+      cachedItem = JSON.parse(cachedItem);
       return new Promise(function (fulfill, reject) { fulfill(cachedItem); });
     }
     
@@ -210,7 +211,7 @@ GW2API.prototype = {
           var data = JSON.parse(dataStream);
           
           if (that.storeInCache) {
-            that.storage.setItem(cacheKey, data);
+            that.storage.setItem(cacheKey, dataStream);
           }
           
           fulfill(data);

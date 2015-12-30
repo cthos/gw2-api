@@ -28,8 +28,9 @@ describe('GW2API', function () {
     it ('Should store continents in cache', function () {
       return api.getContinents().then(function(res) {
         var continents = api.getStorage().getItem(md5('/continents'));
+        continents = JSON.parse(continents);
         assert.equal(continents.length, 2);
-        assert.equal(res, continents);
+        assert.deepEqual(res, continents);
       }).then(function (res) {
         
       });
@@ -53,7 +54,7 @@ describe('GW2API', function () {
         itemResult1 = res;
         return api.getItems([15, 211]);
       }).then(function (res) {
-        assert.notEqual(itemResult1, res);
+        assert.notDeepEqual(itemResult1, res);
       });
     });
     
@@ -64,7 +65,7 @@ describe('GW2API', function () {
         itemResult1 = res;
         return api.getItems([411, 15]);
       }).then(function (res) {
-        assert.equal(itemResult1, res);
+        assert.deepEqual(itemResult1, res);
       });
     });
   });
@@ -82,10 +83,15 @@ describe('GW2API', function () {
       }); 
     });
     
-    it('Should Return multiple currency', function () {
+    it('Should Return multiple currencies', function () {
       return api.getCurrencies([1, 2]).then(function (res) {
-        assert.equal(res[0].name, 'Coin');
-        assert.equal(res[1].name, 'Karma');
+        res.forEach(function (item) {
+          if (item.id === 1) {
+            assert.equal(item.name, 'Coin');
+          } else {
+            assert.equal(item.name, 'Karma');
+          }
+        });
       }); 
     });
   });
