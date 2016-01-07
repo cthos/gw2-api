@@ -1,15 +1,15 @@
-/**
- * Guild Wars 2 API
- * @module gw2-api
- */
-
 var http = require('http');
 var Promise = require('promise');
 var request = require('request');
 var _ = require('underscore');
 var md5 = require('js-md5');
 
-/** @class */
+/**
+ * GW2 API Main interface
+ *
+ * @class
+ * @author cthos <cthos@alextheward.com>
+ */
 var GW2API = function () {
   this.storage = typeof localStorage === "undefined" ? null : localStorage;
   this.lang = 'en_US';
@@ -17,35 +17,88 @@ var GW2API = function () {
 }
 
 GW2API.prototype = {
+  /**
+   * API Base url. Constant
+   * @type {String}
+   */
   baseUrl: "https://api.guildwars2.com/v2/",
 
+  /**
+   * Set the storage solution.
+   *
+   * The solution should have a getItem and setItem method, but can be anything.
+   *
+   * @param {object} storage
+   *  Storage solution. Defaults to localStorage if available. Null if not.
+   */
   setStorage : function (storage) {
     this.storage = storage;
     return this;
   },
 
+  /**
+   * Gets the storage solution.
+   *
+   * @return {object}
+   *   Storage solution.
+   */
   getStorage: function () {
     return this.storage;
   },
 
+  /**
+   * Sets the language code. Should be the ISO code (en_US for example).
+   *
+   * @param {string} langCode
+   *   Target language code.
+   *
+   * @return this
+   */
   setLang : function (langCode) {
     this.lang = langCode;
     return this;
   },
 
+  /**
+   * Gets the current language, which some api endpoints use.
+   *
+   * @return {string}
+   *  langcode
+   */
   getLang: function () {
     return this.lang;
   },
 
+  /**
+   * Gets the boolean cache setting.
+   *
+   * @return {boolean}
+   */
   getCache: function () {
     return this.cache;
   },
 
+  /**
+   * Turns caching on or off.
+   *
+   * @param {boolean} cache
+   *   Enable or disable cache.
+   */
   setCache: function (cache) {
     this.cache = this.storeInCache = cache;
     return this;
   },
 
+  /**
+   * Enables or disables storing API results in cache.
+   * This is distinct from setCache, which turns all caching on or off.
+   *
+   * This setting would be used to update the cache but not actually return
+   * the results.
+   *
+   * @param {boolean} storeInCache
+   *   Whether or not to store results in cache.
+   */
   setStoreInCache: function (storeInCache) {
     this.storeInCache = storeInCache;
     return this;
@@ -54,6 +107,8 @@ GW2API.prototype = {
   /**
    * Stores the API key in storage.
    *
+   * @param {string} key
+   *   API Key to use for requests.
    * @return this
    */
   setAPIKey: function (key) {
@@ -63,6 +118,8 @@ GW2API.prototype = {
 
   /**
    * Loads the API key from the local storage.
+   *
+   * @return string
    */
   getAPIKey: function () {
     return this.storage.getItem('apiKey');
