@@ -1,4 +1,4 @@
-# GW2-API
+## GW2-API
 
 ![Build Status](https://travis-ci.org/cthos/gw2-api.svg?branch=master)
 
@@ -12,7 +12,7 @@ The `gw2` package comes with 2 objects exported. `gw2` is the actual interface t
 
 ## API Documentation
 
-TODO
+[Static API Documetation Page](http://cthos.github.com/gw2-api)
 
 ## Example
 

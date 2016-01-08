@@ -1,4 +1,32 @@
-var http = require('http');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: src/gw2-api.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: src/gw2-api.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var http = require('http');
 var Promise = require('promise');
 var request = require('request');
 var _ = require('underscore');
@@ -8,7 +36,7 @@ var md5 = require('js-md5');
  * GW2 API Main interface
  *
  * @class
- * @author cthos <cthos@alextheward.com>
+ * @author cthos &lt;cthos@alextheward.com>
  */
 var GW2API = function () {
   this.storage = typeof localStorage === "undefined" ? null : localStorage;
@@ -131,7 +159,7 @@ GW2API.prototype = {
    * Requires authenticaion
    *
    * @param {string} characterName
-   *  <optional> Get details on a particular character.
+   *  &lt;optional> Get details on a particular character.
    *
    * @return Promise
    */
@@ -147,7 +175,7 @@ GW2API.prototype = {
   /**
    * Gets the wallet information associated with the current API token.
    * @param  {boolean} handleCurrencyTranslation
-   *   <optional> If true, will automatically get the currency information.
+   *   &lt;optional> If true, will automatically get the currency information.
    *   Otherwise you'll just get currency id and value.
    * @return Promise
    */
@@ -161,13 +189,13 @@ GW2API.prototype = {
     return this.callAPI('/account/wallet').then(function (res) {
       var walletCurrencies = res;
       var lookupIds = [];
-      for (var i = 0, len = res.length; i < len; i++) {
+      for (var i = 0, len = res.length; i &lt; len; i++) {
         lookupIds.push(res[i].id);
       }
 
       return that.getCurrencies(lookupIds).then(function (res) {
-        for (var i = 0, len = res.length; i < len; i++) {
-          for (var x = 0, xlen = walletCurrencies.length; x < xlen; x++) {
+        for (var i = 0, len = res.length; i &lt; len; i++) {
+          for (var x = 0, xlen = walletCurrencies.length; x &lt; xlen; x++) {
             if (res[i].id == walletCurrencies[x].id) {
               Object.assign(walletCurrencies[x], res[i]);
               break;
@@ -191,7 +219,7 @@ GW2API.prototype = {
    * Gets a list of items. If no ids are passed, you'll get an array of all ids back.
    *
    * @param  {int|array} itemIds
-   *   <optional> Either an int itemId or an array of itemIds.
+   *   &lt;optional> Either an int itemId or an array of itemIds.
    *
    * @return Promise
    */
@@ -203,7 +231,7 @@ GW2API.prototype = {
    * Gets materials. If no ids are passed, this will return an array of all
    * possible material ids.
    * @param  {int|array} materialIds
-   *   <optional> Either an int materialId or an array of materialIds
+   *   &lt;optional> Either an int materialId or an array of materialIds
    * @return Promise
    */
   getMaterials : function (materialIds) {
@@ -214,7 +242,7 @@ GW2API.prototype = {
    * Gets recipes. If no ids are passed, this will return an array of all
    * possible recipe ids.
    * @param  {int|array} recipeIds
-   *   <optional> Either an int recipeId or an array of recipeIds
+   *   &lt;optional> Either an int recipeId or an array of recipeIds
    * @return Promise
    */
   getRecipes : function (recipeIds) {
@@ -225,7 +253,7 @@ GW2API.prototype = {
    * Gets currencies. If no ids are passed, this will return an array of all
    * possible material ids.
    * @param  {int|array} currencyIds
-   *   <optional> Either an int currencyId or an array of currenciyIds
+   *   &lt;optional> Either an int currencyId or an array of currenciyIds
    * @return Promise
    */
   getCurrencies : function (currencyIds) {
@@ -236,7 +264,7 @@ GW2API.prototype = {
    * Gets achievements. If no ids are passed, this will return an array of all
    * possible achievement ids.
    * @param  {int|array} achievementIds
-   *   <optional> Either an int achievementId or an array of achievementIds
+   *   &lt;optional> Either an int achievementId or an array of achievementIds
    * @return Promise
    */
   getAchievements : function (achievementIds) {
@@ -309,19 +337,19 @@ GW2API.prototype = {
 
     var keys = _.keys(params).sort();
     var tmpArr = [];
-    for (var i = 0, len = keys.length; i < len; i++) {
+    for (var i = 0, len = keys.length; i &lt; len; i++) {
       tmpArr.push(keys[i] + "=" + params[keys[i]]);
     }
 
     var keystr = '';
     if (tmpArr.length > 0) {
-      keystr = '?' + tmpArr.join('&');
+      keystr = '?' + tmpArr.join('&amp;');
     }
 
     var cacheKey = md5(endpoint + keystr);
     var cachedItem;
 
-    if (this.cache && (cachedItem = this.storage.getItem(cacheKey))) {
+    if (this.cache &amp;&amp; (cachedItem = this.storage.getItem(cacheKey))) {
       cachedItem = JSON.parse(cachedItem);
       return new Promise(function (fulfill, reject) { fulfill(cachedItem); });
     }
@@ -352,3 +380,26 @@ GW2API.prototype = {
 }
 
 module.exports = GW2API;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-gw2-api.html">gw2-api</a></li></ul><h3>Classes</h3><ul><li><a href="GW2API.html">GW2API</a></li><li><a href="module-gw2-api-memStore.html">memStore</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Jan 07 2016 15:57:26 GMT-0800 (PST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
