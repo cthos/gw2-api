@@ -3,6 +3,7 @@ var Promise = require('promise');
 var request = require('request');
 var _ = require('underscore');
 var md5 = require('js-md5');
+var objAssign = require('object.assign').getPolyfill();
 
 /**
  * GW2 API Main interface
@@ -169,7 +170,7 @@ GW2API.prototype = {
         for (var i = 0, len = res.length; i < len; i++) {
           for (var x = 0, xlen = walletCurrencies.length; x < xlen; x++) {
             if (res[i].id == walletCurrencies[x].id) {
-              Object.assign(walletCurrencies[x], res[i]);
+              objAssign(walletCurrencies[x], res[i]);
               break;
             }
           }
@@ -272,7 +273,7 @@ GW2API.prototype = {
     }
 
     if (typeof otherParams === 'object') {
-      Object.assign(params, otherParams);
+      objAssign(params, otherParams);
     }
 
     return this.callAPI(endpoint, params, requiresAuth);
