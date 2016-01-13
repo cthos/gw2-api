@@ -4,6 +4,7 @@ var request = require('request');
 var _ = require('underscore');
 var md5 = require('js-md5');
 var objAssign = require('object.assign').getPolyfill();
+var chunk = require('chunk');
 
 /**
  * GW2 API Main interface
@@ -252,6 +253,71 @@ GW2API.prototype = {
    */
   getDailyAchievements : function () {
     return this.callAPI('/achievements/daily', {"lang": this.getLang()}, false);
+  },
+
+  /**
+   * Gets skills. If no ids are passed, this will return an array of all possible
+   * skills.
+   *
+   * @param  {int|array} skillIds
+   *   <optional> Either an int skillId or an array of skillIds.
+   * @return {Promise}
+   */
+  getSkills : function (skillIds) {
+    return this.getOneOrMany('/skills', skillIds, false);
+  },
+
+  /**
+   * [Helper Method] Gets skills for a particular profession.
+   *
+   * @param  {String} profession
+   *   The string key to match profession on.
+   * @param {String} skillType
+   *   <optional> The type of skills to return ("Weapon", "Heal", etc.)
+   * @param {Boolean} includeBundles
+   *   <optional> Whether or not to include bundles as part of the return list.
+   *   This option is meaningless if skillType == 'Bundle'
+   * @return {Promise}
+   */
+  getProfessionSkills: function (profession, skillType, includeBundles) {
+    var that = this;
+
+    if (typeof includeBundles == 'undefined') {
+      includeBundles = false;
+    }
+
+    return this.getSkills().then(function (skillIds) {
+      // Break skills into chunks.
+      var chunks = chunk(skillIds, 50);
+      var promises = [];
+
+      chunks.forEach(function (c) {
+        promises.push(that.getSkills(c).then(function (skills) {
+          var profSkills = [];
+          return skills.filter(function (skill) {
+            if (skill.professions.indexOf(profession) == -1) {
+              return false;
+            }
+
+            if (!includeBundles && skill.type == 'Bundle') {
+              return false;
+            }
+
+            if (skillType && skill.type == skillType) {
+              return true;
+            } else if (skillType) {
+              return false;
+            }
+
+            return true;
+          });
+        }));
+      });
+
+      return Promise.all(promises).then(function (results) {
+        return [].concat.apply([], results);
+      });
+    });
   },
 
   /**
