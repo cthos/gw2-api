@@ -147,6 +147,56 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets Account achievements.
+   *
+   * @param {Boolean} autoTranslateAchievements
+   *   If this is set to true, it will automatically call the achievement
+   *   endpoint to get more details as part of the return.
+   *
+   * @return {Array}
+   *   Account achievements.
+   */
+  getAccountAchievements : function (autoTranslateAchievements) {
+    var p = this.callAPI('/account/achievements');
+    var that = this;
+
+    if (!autoTranslateAchievements) {
+        return p;
+    }
+
+    return p.then(function (accountAchievements) {
+      var lookupIds = [];
+      var promises = [];
+
+      accountAchievements.forEach(function (ach) {
+        lookupIds.push(ach.id);
+      });
+
+      var chunks = chunk(lookupIds, 100);
+      chunks.forEach(function (ch) {
+        promises.push(that.getAchievements(ch));
+      });
+
+      return Promise.all(promises).then(function (results) {
+        var achs = [].concat.apply([], results);
+
+        achs.forEach(function (ach) {
+          for (var i = 0, len = accountAchievements.length; i < len; i++) {
+            if (accountAchievements[i].id === ach.id) {
+              objAssign(accountAchievements[i], ach);
+              break;
+            }
+          }
+        });
+
+        return accountAchievements;
+      });
+    }).catch(function (err) {
+      console.log(err);
+    });
+  },
+
+  /**
    * Gets the wallet information associated with the current API token.
    * @param  {boolean} handleCurrencyTranslation
    *   <optional> If true, will automatically get the currency information.

@@ -203,6 +203,26 @@ describe('GW2API', function () {
     });
   });
 
+  describe('Account', function () {
+    before(function () {
+      api.setAPIKey(process.env.API_KEY);
+    });
+
+    it ('Should get account achievements', function () {
+      return api.getAccountAchievements().then(function (achs) {
+        assert.equal(achs.length > 10, true);
+        assert.equal(achs[0].name, undefined);
+      });
+    });
+
+    it('Should get deep account achievements', function () {
+      return api.getAccountAchievements(true).then(function (achs) {
+        assert.equal(achs.length > 10, true);
+        assert(achs[0].name);
+      });
+    });
+  });
+
   describe('Skills', function () {
     it('Should get skills', function () {
       return api.getSkills().then(function (res) {
