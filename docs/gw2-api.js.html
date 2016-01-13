@@ -26,18 +26,20 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Guild Wars 2 API
- * @module gw2-api
- */
-
-var http = require('http');
+            <pre class="prettyprint source linenums"><code>var http = require('http');
 var Promise = require('promise');
 var request = require('request');
 var _ = require('underscore');
 var md5 = require('js-md5');
+var objAssign = require('object.assign').getPolyfill();
+var chunk = require('chunk');
 
-/** @class */
+/**
+ * GW2 API Main interface
+ *
+ * @class
+ * @author cthos &lt;cthos@alextheward.com>
+ */
 var GW2API = function () {
   this.storage = typeof localStorage === "undefined" ? null : localStorage;
   this.lang = 'en_US';
@@ -45,35 +47,88 @@ var GW2API = function () {
 }
 
 GW2API.prototype = {
+  /**
+   * API Base url. Constant
+   * @type {String}
+   */
   baseUrl: "https://api.guildwars2.com/v2/",
 
+  /**
+   * Set the storage solution.
+   *
+   * The solution should have a getItem and setItem method, but can be anything.
+   *
+   * @param {object} storage
+   *  Storage solution. Defaults to localStorage if available. Null if not.
+   */
   setStorage : function (storage) {
     this.storage = storage;
     return this;
   },
 
+  /**
+   * Gets the storage solution.
+   *
+   * @return {object}
+   *   Storage solution.
+   */
   getStorage: function () {
     return this.storage;
   },
 
+  /**
+   * Sets the language code. Should be the ISO code (en_US for example).
+   *
+   * @param {string} langCode
+   *   Target language code.
+   *
+   * @return this
+   */
   setLang : function (langCode) {
     this.lang = langCode;
     return this;
   },
 
+  /**
+   * Gets the current language, which some api endpoints use.
+   *
+   * @return {string}
+   *  langcode
+   */
   getLang: function () {
     return this.lang;
   },
 
+  /**
+   * Gets the boolean cache setting.
+   *
+   * @return {boolean}
+   */
   getCache: function () {
     return this.cache;
   },
 
+  /**
+   * Turns caching on or off.
+   *
+   * @param {boolean} cache
+   *   Enable or disable cache.
+   */
   setCache: function (cache) {
     this.cache = this.storeInCache = cache;
     return this;
   },
 
+  /**
+   * Enables or disables storing API results in cache.
+   * This is distinct from setCache, which turns all caching on or off.
+   *
+   * This setting would be used to update the cache but not actually return
+   * the results.
+   *
+   * @param {boolean} storeInCache
+   *   Whether or not to store results in cache.
+   */
   setStoreInCache: function (storeInCache) {
     this.storeInCache = storeInCache;
     return this;
@@ -144,7 +199,7 @@ GW2API.prototype = {
         for (var i = 0, len = res.length; i &lt; len; i++) {
           for (var x = 0, xlen = walletCurrencies.length; x &lt; xlen; x++) {
             if (res[i].id == walletCurrencies[x].id) {
-              Object.assign(walletCurrencies[x], res[i]);
+              objAssign(walletCurrencies[x], res[i]);
               break;
             }
           }
@@ -229,6 +284,71 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets skills. If no ids are passed, this will return an array of all possible
+   * skills.
+   *
+   * @param  {int|array} skillIds
+   *   &lt;optional> Either an int skillId or an array of skillIds.
+   * @return {Promise}
+   */
+  getSkills : function (skillIds) {
+    return this.getOneOrMany('/skills', skillIds, false);
+  },
+
+  /**
+   * [Helper Method] Gets skills for a particular profession.
+   *
+   * @param  {String} profession
+   *   The string key to match profession on.
+   * @param {String} skillType
+   *   &lt;optional> The type of skills to return ("Weapon", "Heal", etc.)
+   * @param {Boolean} includeBundles
+   *   &lt;optional> Whether or not to include bundles as part of the return list.
+   *   This option is meaningless if skillType == 'Bundle'
+   * @return {Promise}
+   */
+  getProfessionSkills: function (profession, skillType, includeBundles) {
+    var that = this;
+
+    if (typeof includeBundles == 'undefined') {
+      includeBundles = false;
+    }
+
+    return this.getSkills().then(function (skillIds) {
+      // Break skills into chunks.
+      var chunks = chunk(skillIds, 50);
+      var promises = [];
+
+      chunks.forEach(function (c) {
+        promises.push(that.getSkills(c).then(function (skills) {
+          var profSkills = [];
+          return skills.filter(function (skill) {
+            if (skill.professions.indexOf(profession) == -1) {
+              return false;
+            }
+
+            if (!includeBundles &amp;&amp; skill.type == 'Bundle') {
+              return false;
+            }
+
+            if (skillType &amp;&amp; skill.type == skillType) {
+              return true;
+            } else if (skillType) {
+              return false;
+            }
+
+            return true;
+          });
+        }));
+      });
+
+      return Promise.all(promises).then(function (results) {
+        return [].concat.apply([], results);
+      });
+    });
+  },
+
+  /**
    * Helper function to do the common endpoint/{id} or ?ids={}
    *
    * @param string endpoint
@@ -247,7 +367,7 @@ GW2API.prototype = {
     }
 
     if (typeof otherParams === 'object') {
-      Object.assign(params, otherParams);
+      objAssign(params, otherParams);
     }
 
     return this.callAPI(endpoint, params, requiresAuth);
@@ -337,13 +457,13 @@ module.exports = GW2API;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-gw2-api.html">gw2-api</a></li></ul><h3>Classes</h3><ul><li><a href="module-gw2-api-GW2API.html">GW2API</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GW2API.html">GW2API</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jan 06 2016 18:02:31 GMT-0800 (PST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Jan 12 2016 17:43:01 GMT-0800 (PST)
 </footer>
 
 <script> prettyPrint(); </script>
