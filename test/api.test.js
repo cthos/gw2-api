@@ -219,6 +219,64 @@ describe('GW2API', function () {
       return api.getAccountAchievements(true).then(function (achs) {
         assert.equal(achs.length > 10, true);
         assert(achs[0].name);
+        assert(achs[7].name);
+      });
+    });
+
+    it ('Should get account bank', function () {
+      return api.getAccountBank().then(function (items) {
+        assert.equal(items.length > 10, true);
+        assert.equal(items[0].name, undefined);
+      });
+    });
+
+    it('Should get deep account bank', function () {
+      return api.getAccountBank(true).then(function (items) {
+        assert.equal(items.length > 10, true);
+        for (var i = 0; i < 10; i++) {
+          if (!items[i]) {
+            continue;
+          }
+          assert(items[i].name);
+        }
+      });
+    });
+
+    it ('Should get account dyes', function () {
+      return api.getAccountDyes().then(function (items) {
+        assert.equal(items.length > 10, true);
+        assert.equal(items[0].name, undefined);
+      });
+    });
+
+    it('Should get deep account dyes', function () {
+      return api.getAccountDyes(true).then(function (items) {
+        assert.equal(items.length > 10, true);
+        for (var i = 0; i < 10; i++) {
+          if (!items[i]) {
+            continue;
+          }
+          assert(items[i].name);
+        }
+      });
+    });
+
+    it('Should get account materials', function () {
+      return api.getAccountMaterials().then(function (items) {
+        assert.equal(items.length > 10, true);
+        assert.equal(items[0].name, undefined);
+      });
+    });
+
+    it('Should get deep account materials', function () {
+      return api.getAccountMaterials(true).then(function (items) {
+        assert.equal(items.length > 10, true);
+        for (var i = 0; i < 10; i++) {
+          if (!items[i]) {
+            continue;
+          }
+          assert(items[i].name);
+        }
       });
     });
   });
@@ -232,7 +290,7 @@ describe('GW2API', function () {
 
     it('Should get a single skill', function () {
       return api.getSkills(30488).then(function (skill) {
-        assert.equal(skill.name, '"Your Soul Is Mine!"')
+        assert.equal(skill.name, '"Your Soul Is Mine!"');
       });
     });
 
@@ -248,7 +306,7 @@ describe('GW2API', function () {
         skills.forEach(function (skill) {
           assert.equal(skill.professions.indexOf('Necromancer') != -1, true);
         });
-      })
+      });
     });
   });
 });

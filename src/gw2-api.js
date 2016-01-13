@@ -165,34 +165,110 @@ GW2API.prototype = {
     }
 
     return p.then(function (accountAchievements) {
-      var lookupIds = [];
-      var promises = [];
+      return that.getDeeperInfo(that.getAchievements, accountAchievements, 100);
+    });
+  },
 
-      accountAchievements.forEach(function (ach) {
-        lookupIds.push(ach.id);
-      });
+  /**
+   * Gets items from the account bank.
+   *
+   * @param  {Boolean} autoTranslateItems
+   *   Whether or not to automatically call the item endpoint.
+   * @return {Promise}
+   */
+  getAccountBank: function (autoTranslateItems) {
+    var p = this.callAPI('/account/bank');
+    var that = this;
 
-      var chunks = chunk(lookupIds, 100);
-      chunks.forEach(function (ch) {
-        promises.push(that.getAchievements(ch));
-      });
+    if (!autoTranslateItems) {
+      return p;
+    }
 
-      return Promise.all(promises).then(function (results) {
-        var achs = [].concat.apply([], results);
+    return p.then(function (bank) {
+      return that.getDeeperInfo(that.getItems, bank, 100);
+    });
+  },
 
-        achs.forEach(function (ach) {
-          for (var i = 0, len = accountAchievements.length; i < len; i++) {
-            if (accountAchievements[i].id === ach.id) {
-              objAssign(accountAchievements[i], ach);
-              break;
-            }
-          }
-        });
+  /**
+   * Gets unlocked account dyes.
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the items api.
+   * @return {Promise}
+   */
+  getAccountDyes: function (autoTranslateItems) {
+    var p = this.callAPI('/account/dyes');
+    var that = this;
 
-        return accountAchievements;
-      });
-    }).catch(function (err) {
-      console.log(err);
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then(function (dyes) {
+      return that.getDeeperInfo(that.getColors, dyes, 100);
+    });
+  },
+
+  /**
+   * Gets the account's material storage.
+   *
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the materials api.
+   * @return {Promise}
+   */
+  getAccountMaterials: function (autoTranslateItems) {
+    var p = this.callAPI('/account/materials');
+    var that = this;
+
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then(function (materials) {
+      return that.getDeeperInfo(that.getItems, materials, 100);
+    });
+  },
+
+  /**
+   * Gets the account's unlocked minis.
+   *
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the items api.
+   * @return {Promise}
+   */
+  getAccountMinis: function (autoTranslateItems) {
+    var p = this.callAPI('/account/minis');
+    var that = this;
+
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then(function (minis) {
+      return that.getDeeperInfo(that.getMinis, minis, 100);
+    });
+  },
+
+  /**
+   * Gets the account's item skins.
+   *
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the items api.
+   * @return {Promise}
+   */
+  getAccountSkins: function (autoTranslateItems) {
+    var p = this.callAPI('/account/skins');
+    var that = this;
+
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then(function (materials) {
+      return that.getDeeperInfo(that.getItems, materials, 100);
     });
   },
 
@@ -232,6 +308,17 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets Dye Colors. If no ids are passed, all possible ids are returned.
+   *
+   * @param  {int|Array} colorIds
+   *   <optional> An int or array of color ids.
+   * @return {Promise}
+   */
+  getColors : function (colorIds) {
+    return this.getOneOrMany('/colors', colorIds, false);
+  },
+
+  /**
    * Returns the continents list
    * @return Promise
    */
@@ -260,6 +347,17 @@ GW2API.prototype = {
    */
   getMaterials : function (materialIds) {
     return this.getOneOrMany('/materials', materialIds, false);
+  },
+
+  /**
+   * Gets minis. If no ids are passed, this will return an array of all
+   * possible mini ids.
+   * @param  {Int|Array}  miniIds
+   *   <optional> Either an int or an array of mini ids.
+   * @return {Promise}
+   */
+  getMinis : function (miniIds) {
+    return this.getOneOrMany('/minis', miniIds, false);
   },
 
   /**
@@ -367,6 +465,55 @@ GW2API.prototype = {
       return Promise.all(promises).then(function (results) {
         return [].concat.apply([], results);
       });
+    });
+  },
+
+  getDeeperInfo: function (endpointFunc, items, chunkSize) {
+    var lookupIds = [];
+    var promises = [];
+    var that = this;
+
+    if (!chunkSize) {
+      chunkSize = 100;
+    }
+
+    items.forEach(function (item) {
+      if (!item) {
+        // Some endpoints return null, for empty bank slots, for example.
+        return;
+      }
+      if (typeof item == 'number') {
+        lookupIds.push(item);
+        return;
+      }
+      lookupIds.push(item.id);
+    });
+
+    var chunks = chunk(lookupIds, chunkSize);
+    chunks.forEach(function (ch) {
+      promises.push(endpointFunc.call(that, ch));
+    });
+
+    return Promise.all(promises).then(function (results) {
+      var reses = [].concat.apply([], results);
+
+      reses.forEach(function (res) {
+        for (var i = 0, len = items.length; i < len; i++) {
+          if (!items[i]) {
+            continue;
+          }
+
+          if (typeof items[i] == 'number') {
+            items[i] = {id: items[i]};
+          }
+
+          if (items[i].id === res.id) {
+            objAssign(items[i], res);
+          }
+        }
+      });
+
+      return items;
     });
   },
 
