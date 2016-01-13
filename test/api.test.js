@@ -70,6 +70,25 @@ describe('GW2API', function () {
     });
   });
 
+  describe('Characters', function () {
+    before(function () {
+      api.setAPIKey(process.env.API_KEY);
+    });
+
+    it('Should get characters', function () {
+      return api.getCharacters().then(function (res) {
+        assert.equal(res.indexOf('Daginus') > -1, true);
+      });
+    });
+
+    it('Should get a single Character', function () {
+      return api.getCharacters('Daginus').then(function (ch) {
+        assert.equal(ch.profession, 'Necromancer');
+        assert.equal(ch.race, 'Sylvari');
+      });
+    });
+  });
+
   describe('Currencies', function () {
     it('Should return a list of currencies', function () {
       return api.getCurrencies().then(function (res) {
