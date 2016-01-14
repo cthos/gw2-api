@@ -267,9 +267,56 @@ GW2API.prototype = {
       return p;
     }
 
-    return p.then(function (materials) {
-      return that.getDeeperInfo(that.getItems, materials, 100);
+    return p.then(function (skins) {
+      return that.getDeeperInfo(that.getSkins, skins, 100);
     });
+  },
+
+  /**
+   * Gets an account's commerce transactions.
+   *
+   * @param {Boolean} current
+   *   If true, this will query current transactions. Otherwise it
+   *   will query historical transactions.
+   * @param {String} secondLevel
+   *   Either "buys" or "Sells"
+   * @return {Promise}
+   */
+  getCommerceTransactions : function (current, secondLevel) {
+    var endpoint = "/commerce/transactions/" + (current ? 'current' : 'history') + '/' + secondLevel;
+    return this.callAPI(endpoint);
+  },
+
+  /**
+   * Gets overall account pvp statistics.
+   *
+   * @return {Promise}
+   */
+  getPVPStats : function () {
+    return this.callAPI('/pvp/stats');
+  },
+
+  /**
+   * Gets PVP Game details. If ids are not passed a list of all game ids
+   * are returned.
+   *
+   * @param  {String|Array} gameIds
+   *   <optional> Either a gameId or an array of games you'd like more details
+   *   on. Note that GameId is a uuid.
+   * @return {Promise}
+   */
+  getPVPGames : function (gameIds) {
+    return this.getOneOrMany('/pvp/games', gameIds);
+  },
+
+  /**
+   * Returns info about a given token. This token must be first set via
+   * this.setAPIKey.
+   *
+   * @return {Promise}
+   */
+  getTokenInfo : function () {
+    return this.callAPI('/tokeninfo');
   },
 
   /**
@@ -372,6 +419,17 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets Skins. If no ids are passed, this returns an array of all skins.
+   *
+   * @param  {Int|Array} skinIds
+   *   <optional> Either an int skinId or an array of skin ids
+   * @return {Promise}
+   */
+  getSkins : function (skinIds) {
+    return this.getOneOrMany('/skins', skinIds, false);
+  },
+
+  /**
    * Gets currencies. If no ids are passed, this will return an array of all
    * possible material ids.
    * @param  {int|array} currencyIds
@@ -392,6 +450,33 @@ GW2API.prototype = {
   getAchievements : function (achievementIds) {
     return this.getOneOrMany('/achievements', achievementIds, false, {"lang": this.getLang()});
   },
+
+  /**
+   * Gets achievement groups. Examples being "Heart of Thorns, Central Tyria"
+   *
+   * @param {String|Array} groupIds
+   *  <optional> Either a groupId or array of group ids. Note that for this, ids
+   *  are guids.
+   *
+   * @return {Promise}
+   */
+  getAchievementGroups : function (groupIds) {
+    return this.getOneOrMany('achievements/groups', groupIds, false);
+  },
+
+  /**
+   * Gets achievement categories. Examples being "Slayer, Hero of Tyria"
+   *
+   * @param {Int|Array} categoryIds
+   *  <optional> Either an int or an array of category ids.
+   *
+   * @return {Promise}
+   */
+  getAchievementCategories : function (categoryIds) {
+    return this.getOneOrMany('achievements/categories', categoryIds, false);
+  },
+
+
 
   /**
    * Gets daily achievements. This will return an object with the various achievement
@@ -468,6 +553,64 @@ GW2API.prototype = {
     });
   },
 
+  /**
+   * Gets Specializations. If no ids are passed this will return an array of all
+   * ids.
+   *
+   * @param  {Int|Array} specializationIds
+   *   <optional> Either an int specialization id or an array of them.
+   * @return {Promise}
+   */
+  getSpecializations : function (specializationIds) {
+    return this.getOneOrMany('/specializations', specializationIds, false);
+  },
+
+  /**
+   * Gets a list of profession specializations.
+   *
+   * @param  {String} profession
+   *   Profession name. Remember to uppercase the first letter.
+   *
+   * @return {Promise}
+   */
+  getProfessionSpecializations : function (profession) {
+    var that = this;
+    return this.getSpecializations().then(function (specializationIds) {
+      // Doing this for the inherant chunking.
+      return that.getDeeperInfo(that.getSpecializations, specializationIds);
+    }).then(function (fullSpecializations) {
+      var specs = [];
+      fullSpecializations.forEach(function (spec) {
+        if (spec.profession !== profession) {
+          return;
+        }
+        specs.push(spec);
+      });
+
+      return specs;
+    });
+  },
+
+  /**
+   * Helper method to convert a list of ids (or objects with an id parameter)
+   * into more useful information via the passed endpointFunc.
+   *
+   * It chunks the array into chunkSize pieces and makes that many api calls
+   * in parallel.
+   *
+   * Usually used for the account calls that don't return full details on equipment,
+   * for example.
+   *
+   * @param  {function} endpointFunc
+   *   The function to call to get more details. Must be in the GW2API object
+   *   and must return a promise.
+   * @param  {Array} Items
+   *   An array of items to transform. Either an array of ints or objects.
+   * @param  {Int} chunkSize
+   *   How large each batch call should be. Defaults to 100.
+   *
+   * @return {Promise}
+   */
   getDeeperInfo: function (endpointFunc, items, chunkSize) {
     var lookupIds = [];
     var promises = [];
@@ -529,7 +672,7 @@ GW2API.prototype = {
   getOneOrMany : function(endpoint, ids, requiresAuth, otherParams) {
     var params = {};
 
-    if (typeof ids === 'number') {
+    if (typeof ids === 'number' || typeof ids === 'string') {
       endpoint += '/' + ids;
     } else if (Array.isArray(ids)) {
       params['ids'] = ids.sort().join(',');

@@ -201,6 +201,42 @@ describe('GW2API', function () {
         assert.equal(typeof res.pve[0], 'object');
       });
     });
+
+    it('Should get achievement groups', function () {
+      return api.getAchievementGroups().then(function (groups) {
+        assert(groups.length > 1);
+      });
+    });
+
+    it('Should get a single achievement group', function () {
+      return api.getAchievementGroups('65B4B678-607E-4D97-B458-076C3E96A810').then(function(group) {
+        assert.equal(group.name, 'Heart of Thorns');
+      });
+    });
+
+    it('Should get multiple achievement groups', function () {
+      return api.getAchievementGroups(['65B4B678-607E-4D97-B458-076C3E96A810', 'A4ED8379-5B6B-4ECC-B6E1-70C350C902D2']).then(function(groups) {
+        assert.equal(groups.length, 2);
+      });
+    });
+
+    it('Should get achievement categories', function () {
+      return api.getAchievementCategories().then(function (categories) {
+        assert(categories.length > 1);
+      });
+    });
+
+    it('Should get a single achievement category', function () {
+      return api.getAchievementCategories(1).then(function(category) {
+        assert.equal(category.name, 'Slayer');
+      });
+    });
+
+    it('Should get multiple achievement categories', function () {
+      return api.getAchievementCategories([1, 2]).then(function(categories) {
+        assert.equal(categories.length, 2);
+      });
+    });
   });
 
   describe('Account', function () {
@@ -277,6 +313,82 @@ describe('GW2API', function () {
           }
           assert(items[i].name);
         }
+      });
+    });
+
+    it('Should get account skins', function () {
+      return api.getAccountSkins().then(function (skins) {
+        assert.equal(skins.length > 10, true);
+        assert.equal(skins[0].name, undefined);
+      });
+    });
+
+    it('Should get deep account skins', function () {
+      return api.getAccountSkins(true).then(function (skins) {
+        assert.equal(skins.length > 10, true);
+        for (var i = 0; i < 10; i++) {
+          if (!skins[i]) {
+            continue;
+          }
+          assert(skins[i].name);
+        }
+      });
+    });
+
+    it('Should get commerce transactions', function () {
+      // TODO: This test could theoreticaly fail if the test API account doesn't
+      // do any transactions for a while.
+      return api.getCommerceTransactions(false, "buys").then(function (transactions) {
+        assert(transactions.length);
+      });
+    });
+
+    it('Should get PVP Statistics', function () {
+      return api.getPVPStats().then(function (pvp) {
+        assert(pvp.professions.necromancer);
+        assert(pvp.aggregate);
+        assert(pvp.pvp_rank);
+      });
+    });
+
+    it('Should get PVP games', function () {
+      return api.getPVPGames().then(function (games) {
+        assert(games.length);
+      });
+    });
+
+    it('Should get Token Info', function () {
+      return api.getTokenInfo().then(function (token) {
+        assert(token.permissions);
+      });
+    });
+  });
+
+  describe('Specializations', function () {
+    it('Should get specializations', function () {
+      return api.getSpecializations().then(function (specs) {
+        assert(specs.length);
+      });
+    });
+
+    it('Should get a single specialization.', function () {
+      return api.getSpecializations(1).then(function (spec) {
+        assert.equal(spec.name, 'Dueling');
+        assert.equal(spec.profession, 'Mesmer');
+      });
+    });
+
+    it('Should get multiple specializations', function () {
+      return api.getSpecializations([1,2]).then(function(specs) {
+        assert.equal(specs.length, 2);
+      });
+    });
+
+    it('Should get profession specializations', function () {
+      return api.getProfessionSpecializations('Necromancer').then(function (specs) {
+        specs.forEach(function (spec) {
+          assert.equal(spec.profession, 'Necromancer');
+        });
       });
     });
   });
