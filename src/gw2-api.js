@@ -310,6 +310,16 @@ GW2API.prototype = {
   },
 
   /**
+   * Returns info about a given token. This token must be first set via
+   * this.setAPIKey.
+   *
+   * @return {Promise}
+   */
+  getTokenInfo : function () {
+    return this.callAPI('/tokeninfo');
+  },
+
+  /**
    * Gets the wallet information associated with the current API token.
    * @param  {boolean} handleCurrencyTranslation
    *   <optional> If true, will automatically get the currency information.
@@ -543,6 +553,64 @@ GW2API.prototype = {
     });
   },
 
+  /**
+   * Gets Specializations. If no ids are passed this will return an array of all
+   * ids.
+   *
+   * @param  {Int|Array} specializationIds
+   *   <optional> Either an int specialization id or an array of them.
+   * @return {Promise}
+   */
+  getSpecializations : function (specializationIds) {
+    return this.getOneOrMany('/specializations', specializationIds, false);
+  },
+
+  /**
+   * Gets a list of profession specializations.
+   *
+   * @param  {String} profession
+   *   Profession name. Remember to uppercase the first letter.
+   *
+   * @return {Promise}
+   */
+  getProfessionSpecializations : function (profession) {
+    var that = this;
+    return this.getSpecializations().then(function (specializationIds) {
+      // Doing this for the inherant chunking.
+      return that.getDeeperInfo(that.getSpecializations, specializationIds);
+    }).then(function (fullSpecializations) {
+      var specs = [];
+      fullSpecializations.forEach(function (spec) {
+        if (spec.profession !== profession) {
+          return;
+        }
+        specs.push(spec);
+      });
+
+      return specs;
+    });
+  },
+
+  /**
+   * Helper method to convert a list of ids (or objects with an id parameter)
+   * into more useful information via the passed endpointFunc.
+   *
+   * It chunks the array into chunkSize pieces and makes that many api calls
+   * in parallel.
+   *
+   * Usually used for the account calls that don't return full details on equipment,
+   * for example.
+   *
+   * @param  {function} endpointFunc
+   *   The function to call to get more details. Must be in the GW2API object
+   *   and must return a promise.
+   * @param  {Array} Items
+   *   An array of items to transform. Either an array of ints or objects.
+   * @param  {Int} chunkSize
+   *   How large each batch call should be. Defaults to 100.
+   *
+   * @return {Promise}
+   */
   getDeeperInfo: function (endpointFunc, items, chunkSize) {
     var lookupIds = [];
     var promises = [];

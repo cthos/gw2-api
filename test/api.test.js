@@ -356,6 +356,41 @@ describe('GW2API', function () {
         assert(games.length);
       });
     });
+
+    it('Should get Token Info', function () {
+      return api.getTokenInfo().then(function (token) {
+        assert(token.permissions);
+      });
+    });
+  });
+
+  describe('Specializations', function () {
+    it('Should get specializations', function () {
+      return api.getSpecializations().then(function (specs) {
+        assert(specs.length);
+      });
+    });
+
+    it('Should get a single specialization.', function () {
+      return api.getSpecializations(1).then(function (spec) {
+        assert.equal(spec.name, 'Dueling');
+        assert.equal(spec.profession, 'Mesmer');
+      });
+    });
+
+    it('Should get multiple specializations', function () {
+      return api.getSpecializations([1,2]).then(function(specs) {
+        assert.equal(specs.length, 2);
+      });
+    });
+
+    it('Should get profession specializations', function () {
+      return api.getProfessionSpecializations('Necromancer').then(function (specs) {
+        specs.forEach(function (spec) {
+          assert.equal(spec.profession, 'Necromancer');
+        });
+      });
+    });
   });
 
   describe('Skills', function () {
