@@ -267,8 +267,8 @@ GW2API.prototype = {
       return p;
     }
 
-    return p.then(function (materials) {
-      return that.getDeeperInfo(that.getItems, materials, 100);
+    return p.then(function (skins) {
+      return that.getDeeperInfo(that.getSkins, skins, 100);
     });
   },
 
@@ -372,6 +372,17 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets Skins. If no ids are passed, this returns an array of all skins.
+   *
+   * @param  {Int|Array} skinIds
+   *   <optional> Either an int skinId or an array of skin ids
+   * @return {Promise}
+   */
+  getSkins : function (skinIds) {
+    return this.getOneOrMany('/skins', skinIds, false);
+  },
+
+  /**
    * Gets currencies. If no ids are passed, this will return an array of all
    * possible material ids.
    * @param  {int|array} currencyIds
@@ -396,7 +407,7 @@ GW2API.prototype = {
   /**
    * Gets achievement groups. Examples being "Heart of Thorns, Central Tyria"
    *
-   * @param {Int|Array} groupIds
+   * @param {String|Array} groupIds
    *  <optional> Either a groupId or array of group ids. Note that for this, ids
    *  are guids.
    *

@@ -315,6 +315,25 @@ describe('GW2API', function () {
         }
       });
     });
+
+    it('Should get account skins', function () {
+      return api.getAccountSkins().then(function (skins) {
+        assert.equal(skins.length > 10, true);
+        assert.equal(skins[0].name, undefined);
+      });
+    });
+
+    it('Should get deep account skins', function () {
+      return api.getAccountSkins(true).then(function (skins) {
+        assert.equal(skins.length > 10, true);
+        for (var i = 0; i < 10; i++) {
+          if (!skins[i]) {
+            continue;
+          }
+          assert(skins[i].name);
+        }
+      });
+    });
   });
 
   describe('Skills', function () {
