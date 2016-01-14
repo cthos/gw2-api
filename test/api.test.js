@@ -201,6 +201,42 @@ describe('GW2API', function () {
         assert.equal(typeof res.pve[0], 'object');
       });
     });
+
+    it('Should get achievement groups', function () {
+      return api.getAchievementGroups().then(function (groups) {
+        assert(groups.length > 1);
+      });
+    });
+
+    it('Should get a single achievement group', function () {
+      return api.getAchievementGroups('65B4B678-607E-4D97-B458-076C3E96A810').then(function(group) {
+        assert.equal(group.name, 'Heart of Thorns');
+      });
+    });
+
+    it('Should get multiple achievement groups', function () {
+      return api.getAchievementGroups(['65B4B678-607E-4D97-B458-076C3E96A810', 'A4ED8379-5B6B-4ECC-B6E1-70C350C902D2']).then(function(groups) {
+        assert.equal(groups.length, 2);
+      });
+    });
+
+    it('Should get achievement categories', function () {
+      return api.getAchievementCategories().then(function (categories) {
+        assert(categories.length > 1);
+      });
+    });
+
+    it('Should get a single achievement category', function () {
+      return api.getAchievementCategories(1).then(function(category) {
+        assert.equal(category.name, 'Slayer');
+      });
+    });
+
+    it('Should get multiple achievement categories', function () {
+      return api.getAchievementCategories([1, 2]).then(function(categories) {
+        assert.equal(categories.length, 2);
+      });
+    });
   });
 
   describe('Account', function () {

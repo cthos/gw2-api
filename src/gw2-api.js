@@ -394,6 +394,33 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets achievement groups. Examples being "Heart of Thorns, Central Tyria"
+   *
+   * @param {Int|Array} groupIds
+   *  <optional> Either a groupId or array of group ids. Note that for this, ids
+   *  are guids.
+   *
+   * @return {Promise}
+   */
+  getAchievementGroups : function (groupIds) {
+    return this.getOneOrMany('achievements/groups', groupIds, false);
+  },
+
+  /**
+   * Gets achievement categories. Examples being "Slayer, Hero of Tyria"
+   *
+   * @param {Int|Array} categoryIds
+   *  <optional> Either an int or an array of category ids.
+   *
+   * @return {Promise}
+   */
+  getAchievementCategories : function (categoryIds) {
+    return this.getOneOrMany('achievements/categories', categoryIds, false);
+  },
+
+
+
+  /**
    * Gets daily achievements. This will return an object with the various achievement
    * categories as keys. The current keys are "wvw", "pvp", and "pve"
    *
@@ -529,7 +556,7 @@ GW2API.prototype = {
   getOneOrMany : function(endpoint, ids, requiresAuth, otherParams) {
     var params = {};
 
-    if (typeof ids === 'number') {
+    if (typeof ids === 'number' || typeof ids === 'string') {
       endpoint += '/' + ids;
     } else if (Array.isArray(ids)) {
       params['ids'] = ids.sort().join(',');
