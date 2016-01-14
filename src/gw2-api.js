@@ -273,6 +273,43 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets an account's commerce transactions.
+   *
+   * @param {Boolean} current
+   *   If true, this will query current transactions. Otherwise it
+   *   will query historical transactions.
+   * @param {String} secondLevel
+   *   Either "buys" or "Sells"
+   * @return {Promise}
+   */
+  getCommerceTransactions : function (current, secondLevel) {
+    var endpoint = "/commerce/transactions/" + (current ? 'current' : 'history') + '/' + secondLevel;
+    return this.callAPI(endpoint);
+  },
+
+  /**
+   * Gets overall account pvp statistics.
+   *
+   * @return {Promise}
+   */
+  getPVPStats : function () {
+    return this.callAPI('/pvp/stats');
+  },
+
+  /**
+   * Gets PVP Game details. If ids are not passed a list of all game ids
+   * are returned.
+   *
+   * @param  {String|Array} gameIds
+   *   <optional> Either a gameId or an array of games you'd like more details
+   *   on. Note that GameId is a uuid.
+   * @return {Promise}
+   */
+  getPVPGames : function (gameIds) {
+    return this.getOneOrMany('/pvp/games', gameIds);
+  },
+
+  /**
    * Gets the wallet information associated with the current API token.
    * @param  {boolean} handleCurrencyTranslation
    *   <optional> If true, will automatically get the currency information.

@@ -334,6 +334,28 @@ describe('GW2API', function () {
         }
       });
     });
+
+    it('Should get commerce transactions', function () {
+      // TODO: This test could theoreticaly fail if the test API account doesn't
+      // do any transactions for a while.
+      return api.getCommerceTransactions(false, "buys").then(function (transactions) {
+        assert(transactions.length);
+      });
+    });
+
+    it('Should get PVP Statistics', function () {
+      return api.getPVPStats().then(function (pvp) {
+        assert(pvp.professions.necromancer);
+        assert(pvp.aggregate);
+        assert(pvp.pvp_rank);
+      });
+    });
+
+    it('Should get PVP games', function () {
+      return api.getPVPGames().then(function (games) {
+        assert(games.length);
+      });
+    });
   });
 
   describe('Skills', function () {
