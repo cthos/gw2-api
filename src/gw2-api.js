@@ -288,6 +288,35 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets commerce listings. If no item ids are passed, it will return
+   * a list of all possible ids.
+   *
+   * @param  {Int|Array} itemIds
+   *   Either an Int or Array of items
+   * @return {Promise}
+   */
+  getCommerceListings : function (itemIds) {
+    return this.getOneOrMany('/commerce/listings', itemIds, false);
+  },
+
+  /**
+   * Returns the current gem buy and sell prices.
+   *
+   * Quantity _must_ be higher than needed to buy a single coin or gem.
+   *
+   * @param {String} gemOrCoin
+   *   The string 'gem' for gold cost to buy gems.
+   *   'coin' for gem price for coins.
+   * @param {Int} quantity
+   *   The number of coins or gems to exchange (this is a required parameter).
+   * @return {Promise}
+   */
+  getCommerceExchange : function (gemOrCoin, quantity) {
+    var second = gemOrCoin === 'gems' ? 'gems' : 'coins';
+    return this.callAPI('/commerce/exchange/' + second, {'quantity': quantity}, false);
+  },
+
+  /**
    * Gets overall account pvp statistics.
    *
    * @return {Promise}
@@ -307,6 +336,32 @@ GW2API.prototype = {
    */
   getPVPGames : function (gameIds) {
     return this.getOneOrMany('/pvp/games', gameIds);
+  },
+
+  /**
+   * Gets WVW Matches.
+   *
+   * @param {Int} worldId
+   *   A world who's id is participating in the match.
+   * @param  {String|Array} matchIds
+   *   String match id, or an array of match ids.
+   *
+   * @return {Promise}
+   */
+  getWVWMatches : function (worldId, matchIds) {
+    return this.getOneOrMany('/wvw/matches', matchIds, false, {"world": worldId});
+  },
+
+  /**
+   * Gets WVW Objectives
+   *
+   * @param {String|Array} objectiveIds
+   *   <optional> Either an objectiveId or array of ids.
+   *   
+   * @return {Promise}
+   */
+  getWVWObjectives : function (objectiveIds) {
+    return this.getOneOrMany('/wvw/objectives', objectiveIds);
   },
 
   /**
@@ -374,6 +429,39 @@ GW2API.prototype = {
   },
 
   /**
+   * Returns commonly requested files.
+   *
+   * @param {String|Array} fileIds
+   *  Either a string file id or an array of ids.
+   *
+   * @return {Promise}
+   */
+  getFiles : function (fileIds) {
+    return this.getOneOrMany('/files', fileIds, false);
+  },
+
+  /**
+   * Returns the current build id.
+   *
+   * @return {Promise}
+   */
+  getBuildId : function () {
+    return this.callAPI('/build');
+  },
+
+  /**
+   * Returns a list of Quaggans!
+   *
+   * @param {String|Array} quagganIds
+   *   <optional> a String quaggan id or an array of quaggan ids.
+   *
+   * @return {Promise}
+   */
+  getQuaggans : function (quagganIds) {
+    return this.getOneOrMany('/quaggans', quagganIds, false);
+  },
+
+  /**
    * Gets a list of items. If no ids are passed, you'll get an array of all ids back.
    *
    * @param  {int|array} itemIds
@@ -416,6 +504,32 @@ GW2API.prototype = {
    */
   getRecipes : function (recipeIds) {
     return this.getOneOrMany('/recipes', recipeIds, false);
+  },
+
+  /**
+   * Searches for recipes which match an item id. inputItem and outputItem
+   * are mutually exclusive.
+   *
+   * @param  {Int} inputItem
+   *   Search for recipes containing this item.
+   * @param  {Int} outputItem
+   *   Search for recipes which will produce this item.
+   * @return {Promise}
+   */
+  searchRecipes : function (inputItem, outputItem) {
+    if (inputItem && outputItem) {
+      return new Promise(function (fulfill, reject) {
+        reject('inputItem and outputItem are mutually exclusive options');
+      });
+    }
+
+    var options = _.omit({'input' : inputItem, 'output' : outputItem}, function (v, k) {
+      if (!v) {
+        return true;
+      }
+    });
+
+    return this.callAPI('/recipes/search', options, false);
   },
 
   /**
@@ -589,6 +703,57 @@ GW2API.prototype = {
 
       return specs;
     });
+  },
+
+  /**
+   * Gets a list of traits from the passed ids. If no traitIds are passed
+   * all trait ids are returned.
+   *
+   * @param  {Int|Array} traitIds
+   *   <optional> An int or array of trait ids.
+   *
+   * @return {Promise}
+   */
+  getTraits : function (traitIds) {
+    return this.getOneOrMany('/traits', traitIds, false);
+  },
+
+  /**
+   * Returns the assets required to render emblems.
+   *
+   * @param  {String} foreOrBack
+   *   Either the string "foregrounds" or "backgrounds"
+   * @param  {Int|Array} assetIds
+   *   <optional> Either an Int or Array assetId
+   *
+   * @return {Promise}
+   */
+  getEmblems : function (foreOrBack, assetIds) {
+    var subpoint = foreOrBack === 'foregrounds' ? 'foregrounds' : 'backgrounds';
+    return this.getOneOrMany('/emblem/' + subpoint, assetIds);
+  },
+
+  /**
+   * Gets info about guild permissions (unauthenticated).
+   *
+   * @param  {String|Array} permissionIds
+   *
+   * @return {Promise}
+   */
+  getGuildPermissions : function (permissionIds) {
+    return this.getOneOrMany('/guild/permissions', permissionIds);
+  },
+
+  /**
+   * Gets info about guild upgrades (unauthenticated).
+   *
+   * @param  {Int|Array} upgradeIds
+   *   <optional> Either an int or an array of upgrade ids.
+   *
+   * @return {Promise}
+   */
+  getGuildUpgrades : function (upgradeIds) {
+    return this.getOneOrMany('/guild/upgrades', upgradeIds);
   },
 
   /**
