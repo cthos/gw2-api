@@ -1,6 +1,6 @@
 {
   "name": "gw2-api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "GuildWars 2 API interface",
   "main": "index.js",
   "scripts": {

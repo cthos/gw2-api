@@ -180,6 +180,25 @@ describe('GW2API', function () {
         assert.equal(res.length, 2);
       });
     });
+
+    it('Should search recipes by input', function () {
+      return api.searchRecipes(46731).then(function (recipes) {
+        assert(recipes.indexOf(7840) > -1);
+      });
+    });
+
+    it('Should search recipes by output', function () {
+      return api.searchRecipes(null, 50065).then(function (recipes) {
+        assert(recipes.indexOf(8459) > -1);
+        assert.equal(recipes.indexOf(8452), -1);
+      });
+    });
+
+    it('Should fail searching if both input and output mats are present', function () {
+      return api.searchRecipes(46731, 50065).catch(function (err) {
+        assert.equal('inputItem and outputItem are mutually exclusive options', err);
+      });
+    });
   });
 
   describe('Achievements', function () {
@@ -393,6 +412,84 @@ describe('GW2API', function () {
     });
   });
 
+  describe('Guild', function () {
+    it('Should get foreground emblem assets', function () {
+      return api.getEmblems('foregrounds').then(function (assets) {
+        assert(assets.length);
+      });
+    });
+
+    it('Should get background emblem assets', function () {
+      return api.getEmblems('backgrounds').then(function (assets) {
+        assert(assets.length);
+      });
+    });
+
+    it('Should get a specific foreground emblem asset', function () {
+      return api.getEmblems('foregrounds', 1).then(function (assets) {
+        assert.equal(assets.id, 1);
+        assert(assets.layers);
+      });
+    });
+
+    it('Should get a specific background emblem asset', function () {
+      return api.getEmblems('backgrounds', 1).then(function (assets) {
+        assert.equal(assets.id, 1);
+        assert(assets.layers);
+      });
+    });
+
+    it('Should get specific foreground emblem assets', function () {
+      return api.getEmblems('foregrounds', [1, 2]).then(function (assets) {
+        assert(assets[0].layers);
+        assert(assets[1].layers);
+      });
+    });
+
+    it('Should get specific background emblem assets', function () {
+      return api.getEmblems('backgrounds', [1, 2]).then(function (assets) {
+        assert(assets[0].layers);
+        assert(assets[1].layers);
+      });
+    });
+
+    it('Should get permission levels', function () {
+      return api.getGuildPermissions().then(function (perms) {
+        assert(perms.length);
+      });
+    });
+
+    it('Should get a specific permission level', function () {
+      return api.getGuildPermissions('Admin').then(function (perm) {
+        assert.equal(perm.name, 'Admin Lower Ranks.');
+      });
+    });
+
+    it('Should get multiple permission levels', function () {
+      return api.getGuildPermissions(['Admin', 'ClaimableEditOptions']).then(function (perms) {
+        assert(perms.length);
+      });
+    });
+
+    it('Should get upgrades', function () {
+      return api.getGuildUpgrades().then(function (ups) {
+        assert(ups.length);
+      });
+    });
+
+    it('Should get a specific upgrade', function () {
+      return api.getGuildUpgrades(55).then(function (ups) {
+        assert.equal(ups.name, 'Guild Treasure Trove');
+      });
+    });
+
+    it('Should get multiple upgrades', function () {
+      return api.getGuildUpgrades([55, 637]).then(function (ups) {
+        assert(ups.length);
+      });
+    });
+  });
+
   describe('Skills', function () {
     it('Should get skills', function () {
       return api.getSkills().then(function (res) {
@@ -418,6 +515,110 @@ describe('GW2API', function () {
         skills.forEach(function (skill) {
           assert.equal(skill.professions.indexOf('Necromancer') != -1, true);
         });
+      });
+    });
+  });
+
+  describe('Commerce', function () {
+    it('Should get commerce listings', function () {
+      return api.getCommerceListings().then(function (listings) {
+        // This should always be true.
+        assert(listings.length > 100);
+      });
+    });
+
+    it('Should get a single commerce listing', function () {
+      return api.getCommerceListings(19684).then(function (listing) {
+        assert(listing.buys.length);
+      });
+    });
+
+    it('Should get multiple commerce listings', function () {
+      return api.getCommerceListings([19684, 19709]).then(function (listing) {
+        assert.equal(listing.length, 2);
+      });
+    });
+
+    it('Should get Gem buy and sell prices', function () {
+      return api.getCommerceExchange('gems', 100).then(function (exchange) {
+        assert(exchange.coins_per_gem);
+      });
+    });
+
+    it('Should get Coin buy and sell prices', function () {
+      return api.getCommerceExchange('coins', 10000).then(function (exchange) {
+        assert(exchange.coins_per_gem);
+      });
+    });
+  });
+
+  describe('WVW', function () {
+    it('Should get WVW Matches', function () {
+      return api.getWVWMatches(1005).then(function (matches) {
+        assert(matches.id);
+      });
+    });
+
+    it('Should get WVW Objectives', function () {
+      return api.getWVWObjectives().then(function (objectives) {
+        assert(objectives.length);
+      });
+    });
+
+    it('Should get a single WVW Objective', function () {
+      return api.getWVWObjectives('38-6').then(function (objectives) {
+        assert.equal(objectives.name, 'Speldan Clearcut');
+      });
+    });
+
+    it('Should get multiple WVW Objectives', function () {
+      return api.getWVWObjectives(['38-6', '1143-117']).then(function (objectives) {
+        assert.equal(objectives.length, 2);
+      });
+    });
+  });
+
+  describe('Misc', function () {
+    it('Should get the build id', function () {
+      return api.getBuildId().then(function (id) {
+        assert(id.id);
+      });
+    });
+
+    it('Should get Quaggans!!!', function () {
+      return api.getQuaggans().then(function (quaggans) {
+        assert(quaggans.length);
+        assert(quaggans[0]);
+      });
+    });
+
+    it('Should get the 404 quaggan, greatest of quaggans', function () {
+      return api.getQuaggans('404').then(function (quaggans) {
+        assert.equal(quaggans.id, '404');
+      });
+    });
+
+    it('Should get a gaggle of quaggans', function () {
+      return api.getQuaggans(['box', 'bear']).then(function (quaggans) {
+        assert.equal(quaggans.length, 2);
+      });
+    });
+
+    it('Should get files', function () {
+      return api.getFiles().then(function (files) {
+        assert(files.length);
+      });
+    });
+
+    it('Should get a file', function () {
+      return api.getFiles('map_complete').then(function (files) {
+        assert.equal(files.id, 'map_complete');
+      });
+    });
+
+    it('Should get multiple files', function () {
+      return api.getFiles(['map_complete', 'map_dungeon']).then(function (files) {
+        assert.equal(files.length, 2);
       });
     });
   });
