@@ -8,6 +8,28 @@ var mem = new gw2.memStore();
 api.setStorage(mem);
 
 describe('GW2API', function () {
+  describe('Auth', function () {
+    before(function () {
+      api.setAPIKey(process.env.API_KEY);
+    });
+
+    it('Should get authed items via token', function () {
+      api.getCharacters().then(function (ch) {
+        assert(ch.length > 0);
+      });
+    });
+
+    it('Should get authed items via GET param', function () {
+      api.setUseAuthHeader(false);
+
+      api.getCharacters().then(function (ch) {
+        assert(ch.length > 0);
+      });
+
+      api.setUseAuthHeader(true);
+    });
+  });
+
   describe('Continents', function () {
     it('Should have 2 contients', function () {
       return api.getContinents().then(function(res) {

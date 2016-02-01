@@ -16,6 +16,8 @@ var GW2API = function () {
   this.storage = typeof localStorage === "undefined" ? null : localStorage;
   this.lang = 'en_US';
   this.cache = this.storeInCache = false;
+
+  this.useAuthHeader = true;
 }
 
 GW2API.prototype = {
@@ -46,6 +48,30 @@ GW2API.prototype = {
    */
   getStorage: function () {
     return this.storage;
+  },
+
+  /**
+   * Setter for the useAuthHeader property.
+   *
+   * Typically you'll set this to false if you're in a browser
+   * because the API doesn't support OPTIONS.
+   *
+   * @param {boolean} useAuthHeader
+   * @returns {GW2API}
+     */
+  setUseAuthHeader : function (useAuthHeader) {
+    this.useAuthHeader = useAuthHeader;
+
+    return this;
+  },
+
+  /**
+   * Getter for useAuthHeader.
+   *
+   * @returns {boolean}
+     */
+  getUseAuthHeader : function () {
+    return this.useAuthHeader;
   },
 
   /**
@@ -357,7 +383,7 @@ GW2API.prototype = {
    *
    * @param {String|Array} objectiveIds
    *   <optional> Either an objectiveId or array of ids.
-   *   
+   *
    * @return {Promise}
    */
   getWVWObjectives : function (objectiveIds) {
@@ -865,19 +891,24 @@ GW2API.prototype = {
     }
 
     if (!params) {
-      params = null;
+      params = {};
     }
 
     var options = {
-      url : this.baseUrl + endpoint,
-      qs : params
-    }
+      url : this.baseUrl + endpoint
+    };
 
     if (requiresAuth) {
-      options['headers'] = {
-        'Authorization' : 'Bearer ' + this.getAPIKey()
+      if (this.useAuthHeader) {
+        options['headers'] = {
+          'Authorization' : 'Bearer ' + this.getAPIKey()
+        }
+      } else {
+        params['access_token'] = this.getAPIKey();
       }
     }
+
+    options['qs'] = params;
 
     var keys = _.keys(params).sort();
     var tmpArr = [];
