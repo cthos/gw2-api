@@ -358,8 +358,8 @@ describe('GW2API', function () {
       return api.getAccountDyes().then(function (items) {
         assert.equal(items.length > 10, true);
         assert.equal(items[0].name, undefined);
+        done();
       });
-      done();
     });
 
     it('Should get deep account dyes', function (done) {
@@ -379,8 +379,8 @@ describe('GW2API', function () {
       return api.getAccountMaterials().then(function (items) {
         assert.equal(items.length > 10, true);
         assert.equal(items[0].name, undefined);
+        done();
       });
-      done();
     });
 
     it('Should get deep account materials', function (done) {
