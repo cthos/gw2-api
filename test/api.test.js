@@ -370,8 +370,8 @@ describe('GW2API', function () {
             continue;
           }
           assert(items[i].name);
-          done();
         }
+        done();
       });
     });
 
@@ -391,8 +391,8 @@ describe('GW2API', function () {
             continue;
           }
           assert(items[i].name);
-          done();
         }
+        done();
       });
     });
 
@@ -400,8 +400,8 @@ describe('GW2API', function () {
       return api.getAccountSkins().then(function (skins) {
         assert.equal(skins.length > 10, true);
         assert.equal(skins[0].name, undefined);
+        done();
       });
-      done();
     });
 
     it('Should get deep account skins', function (done) {
@@ -721,6 +721,7 @@ describe('GW2API', function () {
     it('Should get multiple files', function (done) {
       return api.getFiles(['map_complete', 'map_dungeon']).then(function (files) {
         assert.equal(files.length, 2);
+        done();
       });
     });
   });
