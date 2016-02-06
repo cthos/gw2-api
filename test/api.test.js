@@ -358,8 +358,8 @@ describe('GW2API', function () {
       return api.getAccountDyes().then(function (items) {
         assert.equal(items.length > 10, true);
         assert.equal(items[0].name, undefined);
-        done();
       });
+      done();
     });
 
     it('Should get deep account dyes', function (done) {
@@ -379,8 +379,8 @@ describe('GW2API', function () {
       return api.getAccountMaterials().then(function (items) {
         assert.equal(items.length > 10, true);
         assert.equal(items[0].name, undefined);
-        done();
       });
+      done();
     });
 
     it('Should get deep account materials', function (done) {
@@ -400,8 +400,8 @@ describe('GW2API', function () {
       return api.getAccountSkins().then(function (skins) {
         assert.equal(skins.length > 10, true);
         assert.equal(skins[0].name, undefined);
-        done();
       });
+      done();
     });
 
     it('Should get deep account skins', function (done) {
@@ -412,8 +412,8 @@ describe('GW2API', function () {
             continue;
           }
           assert(skins[i].name);
-          done();
         }
+        done();
       });
     });
 
@@ -450,8 +450,8 @@ describe('GW2API', function () {
     });
   });
 
-  describe('Specializations', function (done) {
-    it('Should get specializations', function () {
+  describe('Specializations', function () {
+    it('Should get specializations', function (done) {
       return api.getSpecializations().then(function (specs) {
         assert(specs.length);
         done();
@@ -721,7 +721,6 @@ describe('GW2API', function () {
     it('Should get multiple files', function (done) {
       return api.getFiles(['map_complete', 'map_dungeon']).then(function (files) {
         assert.equal(files.length, 2);
-        done();
       });
     });
   });
