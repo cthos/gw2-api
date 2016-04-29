@@ -2,3 +2,5 @@ node_modules
 auth-test.js
 .vagrant
 Vagrantfile
+*.iml
+.idea
