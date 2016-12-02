@@ -8,6 +8,8 @@ var mem = new gw2.memStore();
 api.setStorage(mem);
 
 describe('GW2API', function () {
+  this.retries(4);
+  
   describe('Auth', function () {
     before(function () {
       api.setAPIKey(process.env.API_KEY);
