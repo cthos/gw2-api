@@ -287,6 +287,12 @@ describe('GW2API', function () {
       api.setAPIKey(process.env.API_KEY);
     });
 
+    it ('Should get account information', function () {
+      return api.getAccount().then(function (acc) {
+        assert.ok(acc.id);
+      });
+    });
+
     it ('Should get account achievements', function () {
       return api.getAccountAchievements().then(function (achs) {
         assert.equal(achs.length > 10, true);

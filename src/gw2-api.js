@@ -154,6 +154,17 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets account information.
+   * 
+   * @returns {Promise}
+   */
+  getAccount: function () {
+    var endpoint = '/account';
+
+    return this.callAPI(endpoint);
+  },
+
+  /**
    * Loads the characters associated with the assigned API token.
    *
    * Requires authenticaion
