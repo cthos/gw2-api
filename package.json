@@ -8,7 +8,8 @@
     "url": "https://github.com/cthos/gw2-api.git"
   },
   "scripts": {
-    "test": "mocha test --timeout=40000"
+    "test": "mocha test --timeout=40000",
+    "docs": "jsdoc index.js src/ -d docs/ -R README.md -r"
   },
   "dependencies": {
     "chunk": "0.0.2",

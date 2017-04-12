@@ -12,7 +12,7 @@ The `gw2` package comes with 2 objects exported. `gw2` is the actual interface t
 
 ## API Documentation
 
-[Static API Documetation Page](http://cthos.github.com/gw2-api)
+[Static API Documentation Page](http://cthos.github.com/gw2-api)
 
 ## Example
 
