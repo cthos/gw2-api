@@ -139,6 +139,36 @@ describe('GW2API', function () {
     });
   });
 
+  describe('Masteries', function () {
+    it('Should get account Masteries without translating them', function () {
+      return api.getAccountMasteries().then(function (masts) {
+        assert.ok(masts[0].id);
+        assert.equal(true, typeof masts[0].name === 'undefined');
+      });
+    });
+
+    it('Should get account Masteries and translate them', function () {
+      return api.getAccountMasteries(true).then(function (masts) {
+        assert.ok(masts[0].id);
+        assert.equal(true, typeof masts[0].name === 'string');
+      });
+    });
+
+    it('Should get a single Mastery', function () {
+      return api.getMasteries(8).then(function (mastery) {
+        assert.equal(mastery.name, 'Gliding');
+      });
+    });
+
+    it('Should get a multiple Masteries', function () {
+      return api.getMasteries([8, 13]).then(function (masteries) {
+        var gliding = masteries.filter((m) => m.id === 8)[0];
+        assert.ok(Array.isArray(masteries));
+        assert.equal(gliding.name, 'Gliding');
+      });
+    });
+  });
+
   describe('Items', function () {
     it ('Should have items', function () {
       return api.getItems().then(function (res) {

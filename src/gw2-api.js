@@ -267,6 +267,19 @@ GW2API.prototype = {
     });
   },
 
+  getAccountMasteries: function (autoTranslateMasteries) {
+    var p = this.callAPI('/account/masteries');
+    var that = this;
+
+    if (!autoTranslateMasteries) {
+      return p;
+    }
+
+    return p.then(function (masteries) {
+      return that.getDeeperInfo(that.getMasteries, masteries, 100);
+    });
+  },
+
   /**
    * Gets the account's unlocked minis.
    *
@@ -444,6 +457,17 @@ GW2API.prototype = {
         return walletCurrencies;
       });
     });
+  },
+
+  /**
+   * Loads Masteries
+   * 
+   * @param {Array<number>} masteryIds
+   * 
+   * @returns {Promise}
+   */
+  getMasteries : function (masteryIds) {
+    return this.getOneOrMany('/masteries', masteryIds, false);
   },
 
   /**
