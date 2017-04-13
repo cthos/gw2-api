@@ -9,7 +9,7 @@ api.setStorage(mem);
 
 describe('GW2API', function () {
   this.retries(4);
-  
+
   describe('Auth', function () {
     before(function () {
       api.setAPIKey(process.env.API_KEY);
@@ -36,7 +36,7 @@ describe('GW2API', function () {
 
   describe('Continents', function () {
     it('Should have 2 contients', function () {
-      return api.getContinents().then(function(res) {
+      return api.getContinents().then(function (res) {
         assert.equal(res.length, 2);
       });
     });
@@ -51,8 +51,8 @@ describe('GW2API', function () {
       api.setCache(false);
     });
 
-    it ('Should store continents in cache', function () {
-      return api.getContinents().then(function(res) {
+    it('Should store continents in cache', function () {
+      return api.getContinents().then(function (res) {
         var continents = api.getStorage().getItem(md5('/continents'));
         continents = JSON.parse(continents);
         assert.equal(continents.length, 2);
@@ -60,7 +60,7 @@ describe('GW2API', function () {
       });
     });
 
-    it ('Should return different results on single item calls', function () {
+    it('Should return different results on single item calls', function () {
       var itemResult1;
 
       return api.getItems(15).then(function (res) {
@@ -71,7 +71,7 @@ describe('GW2API', function () {
       });
     });
 
-     it ('Should return different results on multiple item calls', function () {
+    it('Should return different results on multiple item calls', function () {
       var itemResult1;
 
       return api.getItems([15, 411]).then(function (res) {
@@ -82,7 +82,7 @@ describe('GW2API', function () {
       });
     });
 
-    it ('Should return the same result on different id orders', function () {
+    it('Should return the same result on different id orders', function () {
       var itemResult1;
 
       return api.getItems([15, 411]).then(function (res) {
@@ -169,8 +169,38 @@ describe('GW2API', function () {
     });
   });
 
+  describe('Finishers', function () {
+    it('Should get account Finshers without translating them', function () {
+      return api.getAccountFinishers().then(function (fins) {
+        assert.ok(fins[0].id);
+        assert.equal(true, typeof fins[0].name === 'undefined');
+      });
+    });
+
+    it('Should get account Finishers and translate them', function () {
+      return api.getAccountFinishers(true).then(function (fins) {
+        assert.ok(fins[0].id);
+        assert.equal(true, typeof fins[0].name === 'string');
+      });
+    });
+
+    it('Should get a single Finisher', function () {
+      return api.getFinishers(1).then(function (finisher) {
+        assert.equal(finisher.name, 'Rabbit Rank Finisher');
+      });
+    });
+
+    it('Should get a multiple Finishers', function () {
+      return api.getFinishers([1, 2]).then(function (finishers) {
+        var finisher = finishers.filter((m) => m.id === 1)[0];
+        assert.ok(Array.isArray(finishers));
+        assert.equal(finisher.name, 'Rabbit Rank Finisher');
+      });
+    });
+  });
+
   describe('Items', function () {
-    it ('Should have items', function () {
+    it('Should have items', function () {
       return api.getItems().then(function (res) {
         assert.equal(res.length > 0, true);
       });
@@ -192,7 +222,7 @@ describe('GW2API', function () {
   });
 
   describe('Materials', function () {
-    it ('Should have materials', function () {
+    it('Should have materials', function () {
       return api.getMaterials().then(function (res) {
         assert.equal(res.length > 0, true);
       });
@@ -215,7 +245,7 @@ describe('GW2API', function () {
   });
 
   describe('Recipes', function () {
-    it ('Should have recipes', function () {
+    it('Should have recipes', function () {
       return api.getRecipes().then(function (res) {
         assert.equal(res.length > 0, true);
       });
@@ -282,13 +312,13 @@ describe('GW2API', function () {
     });
 
     it('Should get a single achievement group', function () {
-      return api.getAchievementGroups('65B4B678-607E-4D97-B458-076C3E96A810').then(function(group) {
+      return api.getAchievementGroups('65B4B678-607E-4D97-B458-076C3E96A810').then(function (group) {
         assert.equal(group.name, 'Heart of Thorns');
       });
     });
 
     it('Should get multiple achievement groups', function () {
-      return api.getAchievementGroups(['65B4B678-607E-4D97-B458-076C3E96A810', 'A4ED8379-5B6B-4ECC-B6E1-70C350C902D2']).then(function(groups) {
+      return api.getAchievementGroups(['65B4B678-607E-4D97-B458-076C3E96A810', 'A4ED8379-5B6B-4ECC-B6E1-70C350C902D2']).then(function (groups) {
         assert.equal(groups.length, 2);
       });
     });
@@ -300,13 +330,13 @@ describe('GW2API', function () {
     });
 
     it('Should get a single achievement category', function () {
-      return api.getAchievementCategories(1).then(function(category) {
+      return api.getAchievementCategories(1).then(function (category) {
         assert.equal(category.name, 'Slayer');
       });
     });
 
     it('Should get multiple achievement categories', function () {
-      return api.getAchievementCategories([1, 2]).then(function(categories) {
+      return api.getAchievementCategories([1, 2]).then(function (categories) {
         assert.equal(categories.length, 2);
       });
     });
@@ -317,13 +347,13 @@ describe('GW2API', function () {
       api.setAPIKey(process.env.API_KEY);
     });
 
-    it ('Should get account information', function () {
+    it('Should get account information', function () {
       return api.getAccount().then(function (acc) {
         assert.ok(acc.id);
       });
     });
 
-    it ('Should get account achievements', function () {
+    it('Should get account achievements', function () {
       return api.getAccountAchievements().then(function (achs) {
         assert.equal(achs.length > 10, true);
         assert.equal(achs[0].name, undefined);
@@ -338,7 +368,7 @@ describe('GW2API', function () {
       });
     });
 
-    it ('Should get account bank', function () {
+    it('Should get account bank', function () {
       return api.getAccountBank().then(function (items) {
         assert.equal(items.length > 10, true);
 
@@ -364,7 +394,7 @@ describe('GW2API', function () {
       });
     });
 
-    it ('Should get account dyes', function () {
+    it('Should get account dyes', function () {
       return api.getAccountDyes().then(function (items) {
         assert.equal(items.length > 10, true);
         assert.equal(items[0].name, undefined);
@@ -467,7 +497,7 @@ describe('GW2API', function () {
     });
 
     it('Should get multiple specializations', function () {
-      return api.getSpecializations([1,2]).then(function(specs) {
+      return api.getSpecializations([1, 2]).then(function (specs) {
         assert.equal(specs.length, 2);
       });
     });

@@ -267,6 +267,13 @@ GW2API.prototype = {
     });
   },
 
+  /**
+   * Gets the account's masteries.
+   * 
+   * @param {Boolean} autoTranslateMasteries
+   * 
+   * @returns {Promise}
+   */
   getAccountMasteries: function (autoTranslateMasteries) {
     var p = this.callAPI('/account/masteries');
     var that = this;
@@ -277,6 +284,26 @@ GW2API.prototype = {
 
     return p.then(function (masteries) {
       return that.getDeeperInfo(that.getMasteries, masteries, 100);
+    });
+  },
+
+  /**
+   * Gets the account's finishers.
+   * 
+   * @param {Boolean} autoTranslate
+   * 
+   * @returns {Promise}
+   */
+  getAccountFinishers: function (autoTranslate) {
+     var p = this.callAPI('/account/finishers');
+    var that = this;
+
+    if (!autoTranslate) {
+      return p;
+    }
+
+    return p.then(function (finishers) {
+      return that.getDeeperInfo(that.getFinishers, finishers, 100);
     });
   },
 
@@ -468,6 +495,17 @@ GW2API.prototype = {
    */
   getMasteries : function (masteryIds) {
     return this.getOneOrMany('/masteries', masteryIds, false);
+  },
+
+   /**
+   * Loads Finishers
+   * 
+   * @param {Array<number>} finisherIds
+   * 
+   * @returns {Promise}
+   */
+  getFinishers : function (finisherIds) {
+    return this.getOneOrMany('/finishers', finisherIds, false);
   },
 
   /**
