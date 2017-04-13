@@ -305,6 +305,13 @@ describe('GW2API', function () {
       });
     });
 
+    it('Should return deep daily achievements', function () {
+      return api.getDailyAchievements(true).then(function (res) {
+        assert.equal(res.pve.length > 0, true);
+        assert.equal(typeof res.pve[0].name, 'string');
+      });
+    });
+
     it('Should get achievement groups', function () {
       return api.getAchievementGroups().then(function (groups) {
         assert(groups.length > 1);
