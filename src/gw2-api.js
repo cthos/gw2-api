@@ -771,8 +771,6 @@ GW2API.prototype = {
       var promises = [];
 
       chunks.forEach(function (c) {
-        console.log(c);
-
         promises.push(that.getSkills(c).then(function (skills) {
           return skills.filter(function (skill) {
             if (!skill.professions) {
