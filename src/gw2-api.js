@@ -771,9 +771,14 @@ GW2API.prototype = {
       var promises = [];
 
       chunks.forEach(function (c) {
+        console.log(c);
+
         promises.push(that.getSkills(c).then(function (skills) {
-          var profSkills = [];
           return skills.filter(function (skill) {
+            if (!skill.professions) {
+              return false;
+            }
+
             if (skill.professions.indexOf(profession) == -1) {
               return false;
             }
