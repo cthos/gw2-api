@@ -1,6 +1,6 @@
 {
   "name": "gw2-api",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "description": "GuildWars 2 API interface",
   "main": "index.js",
   "repository": {
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "chunk": "0.0.2",
-    "js-md5": "^0.3.0",
+    "md5": "^2.2.1",
     "object.assign": "^4.0.3",
     "promise": "^7.0.4",
     "request": "^2.67.0",

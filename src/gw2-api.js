@@ -2,7 +2,7 @@ var http = require('http');
 var Promise = require('promise');
 var request = require('request');
 var _ = require('underscore');
-var md5 = require('js-md5');
+var md5 = require('md5');
 var objAssign = require('object.assign').getPolyfill();
 var chunk = require('chunk');
 

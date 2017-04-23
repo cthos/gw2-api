@@ -1,6 +1,6 @@
 var assert = require('assert');
 var gw2 = require('../index');
-var md5 = require('js-md5');
+var md5 = require('md5');
 
 var api = new gw2.gw2();
 var mem = new gw2.memStore();
