@@ -1043,6 +1043,13 @@ GW2API.prototype = {
     return new Promise(function (fulfill, reject) {
       request.get(options).on('response', function (response) {
         var dataStream = '';
+
+        if (response.statusCode != 200) {
+          // Error out if the response code isn't 200.
+          reject("The API Returned an error");
+          return;
+        }
+
         response.on('data', function (data) {
           dataStream += data;
         }).on('end', function () {
