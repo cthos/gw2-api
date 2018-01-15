@@ -1,5 +1,5 @@
 {
-  "name": "gw2-api",
+  "name": "@cthos/gw2-api",
   "version": "2.1.0",
   "description": "GuildWars 2 API interface",
   "main": "index.js",
