@@ -235,6 +235,19 @@ GW2API.prototype = {
     });
   },
 
+  getAccountMasteries: function (autoTranslate) {
+    var p = this.callAPI('/account/masteries');
+    var that = this;
+
+    if (!autoTranslate) {
+      return p;
+    }
+
+    return p.then(function (masteries) {
+      return that.getDeeperInfo(that.getMasteries, masteries, 100);
+    });
+  },
+
   /**
    * Gets the account's material storage.
    *
@@ -616,7 +629,9 @@ GW2API.prototype = {
     return this.getOneOrMany('achievements/categories', categoryIds, false);
   },
 
-
+  getMasteries: function (masteryIds) {
+    return this.getOneOrMany('/masteries', masteryIds, false);
+  },
 
   /**
    * Gets daily achievements. This will return an object with the various achievement

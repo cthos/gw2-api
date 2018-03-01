@@ -172,6 +172,32 @@ describe('GW2API', function () {
     });
   });
 
+  describe('Masteries', function () {
+    it ('Should have masteries', function (done) {
+      return api.getMasteries().then(function (res) {
+        assert.equal(res.length > 1, true);
+        done();
+      });
+    });
+
+    it('Should get a single mastery', function (done) {
+      return api.getMasteries(1).then(function (res) {
+        assert.equal(Array.isArray(res), false);
+        assert.equal(res.name, "Exalted Lore");
+        done();
+      });
+    });
+
+    it('Should get multiple masteries', function (done) {
+      return api.getMasteries([1, 2]).then(function (res) {
+        assert.equal(Array.isArray(res), true);
+        assert.equal(res.length, 2);
+        assert.equal(res[0].name, "Exalted Lore");
+        done();
+      })
+    });
+  });
+
   describe('Materials', function () {
     it ('Should have materials', function (done) {
       return api.getMaterials().then(function (res) {
@@ -374,6 +400,31 @@ describe('GW2API', function () {
         done();
       });
     });
+
+    /*
+    it('Should get account masteries', function (done) {
+      return api.getAccountMasteries().then(function (items) {
+        console.log(items);
+        assert.equal(items.length > 1, true);
+        assert.equal(items[0].name, undefined);
+        done();
+      });
+    });
+
+    it('Should get deep account masteries', function (done) {
+      return api.getAccountMasteries(true).then(function (items) {
+        assert.equal(items.length > 1, true);
+        
+        for (var i = 0; i < 10; i++) {
+          if (!items[i]) {
+            continue;
+          }
+          assert(items[i].name);
+        }
+        done();
+      });
+    });
+    */
 
     it('Should get account materials', function (done) {
       return api.getAccountMaterials().then(function (items) {
