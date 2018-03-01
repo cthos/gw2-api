@@ -2,7 +2,7 @@ var http = require('http');
 var Promise = require('promise');
 var request = require('request');
 var _ = require('underscore');
-var md5 = require('js-md5');
+var md5 = require('md5');
 var objAssign = require('object.assign').getPolyfill();
 var chunk = require('chunk');
 
@@ -35,7 +35,7 @@ GW2API.prototype = {
    * @param {object} storage
    *  Storage solution. Defaults to localStorage if available. Null if not.
    */
-  setStorage : function (storage) {
+  setStorage: function (storage) {
     this.storage = storage;
     return this;
   },
@@ -59,7 +59,7 @@ GW2API.prototype = {
    * @param {boolean} useAuthHeader
    * @returns {GW2API}
      */
-  setUseAuthHeader : function (useAuthHeader) {
+  setUseAuthHeader: function (useAuthHeader) {
     this.useAuthHeader = useAuthHeader;
 
     return this;
@@ -70,7 +70,7 @@ GW2API.prototype = {
    *
    * @returns {boolean}
      */
-  getUseAuthHeader : function () {
+  getUseAuthHeader: function () {
     return this.useAuthHeader;
   },
 
@@ -82,7 +82,7 @@ GW2API.prototype = {
    *
    * @return this
    */
-  setLang : function (langCode) {
+  setLang: function (langCode) {
     this.lang = langCode;
     return this;
   },
@@ -154,6 +154,17 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets account information.
+   * 
+   * @returns {Promise}
+   */
+  getAccount: function () {
+    var endpoint = '/account';
+
+    return this.callAPI(endpoint);
+  },
+
+  /**
    * Loads the characters associated with the assigned API token.
    *
    * Requires authenticaion
@@ -163,7 +174,7 @@ GW2API.prototype = {
    *
    * @return Promise
    */
-  getCharacters : function (characterName) {
+  getCharacters: function (characterName) {
     var endpoint = '/characters';
 
     if (typeof characterName !== 'undefined') {
@@ -182,12 +193,12 @@ GW2API.prototype = {
    * @return {Array}
    *   Account achievements.
    */
-  getAccountAchievements : function (autoTranslateAchievements) {
+  getAccountAchievements: function (autoTranslateAchievements) {
     var p = this.callAPI('/account/achievements');
     var that = this;
 
     if (!autoTranslateAchievements) {
-        return p;
+      return p;
     }
 
     return p.then(function (accountAchievements) {
@@ -270,6 +281,46 @@ GW2API.prototype = {
   },
 
   /**
+   * Gets the account's masteries.
+   * 
+   * @param {Boolean} autoTranslateMasteries
+   * 
+   * @returns {Promise}
+   */
+  getAccountMasteries: function (autoTranslateMasteries) {
+    var p = this.callAPI('/account/masteries');
+    var that = this;
+
+    if (!autoTranslateMasteries) {
+      return p;
+    }
+
+    return p.then(function (masteries) {
+      return that.getDeeperInfo(that.getMasteries, masteries, 100);
+    });
+  },
+
+  /**
+   * Gets the account's finishers.
+   * 
+   * @param {Boolean} autoTranslate
+   * 
+   * @returns {Promise}
+   */
+  getAccountFinishers: function (autoTranslate) {
+    var p = this.callAPI('/account/finishers');
+    var that = this;
+
+    if (!autoTranslate) {
+      return p;
+    }
+
+    return p.then(function (finishers) {
+      return that.getDeeperInfo(that.getFinishers, finishers, 100);
+    });
+  },
+
+  /**
    * Gets the account's unlocked minis.
    *
    * @param  {Boolean} autoTranslateItems
@@ -321,7 +372,7 @@ GW2API.prototype = {
    *   Either "buys" or "Sells"
    * @return {Promise}
    */
-  getCommerceTransactions : function (current, secondLevel) {
+  getCommerceTransactions: function (current, secondLevel) {
     var endpoint = "/commerce/transactions/" + (current ? 'current' : 'history') + '/' + secondLevel;
     return this.callAPI(endpoint);
   },
@@ -334,7 +385,7 @@ GW2API.prototype = {
    *   Either an Int or Array of items
    * @return {Promise}
    */
-  getCommerceListings : function (itemIds) {
+  getCommerceListings: function (itemIds) {
     return this.getOneOrMany('/commerce/listings', itemIds, false);
   },
 
@@ -350,9 +401,9 @@ GW2API.prototype = {
    *   The number of coins or gems to exchange (this is a required parameter).
    * @return {Promise}
    */
-  getCommerceExchange : function (gemOrCoin, quantity) {
+  getCommerceExchange: function (gemOrCoin, quantity) {
     var second = gemOrCoin === 'gems' ? 'gems' : 'coins';
-    return this.callAPI('/commerce/exchange/' + second, {'quantity': quantity}, false);
+    return this.callAPI('/commerce/exchange/' + second, { 'quantity': quantity }, false);
   },
 
   /**
@@ -360,7 +411,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getPVPStats : function () {
+  getPVPStats: function () {
     return this.callAPI('/pvp/stats');
   },
 
@@ -373,7 +424,7 @@ GW2API.prototype = {
    *   on. Note that GameId is a uuid.
    * @return {Promise}
    */
-  getPVPGames : function (gameIds) {
+  getPVPGames: function (gameIds) {
     return this.getOneOrMany('/pvp/games', gameIds);
   },
 
@@ -387,8 +438,8 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getWVWMatches : function (worldId, matchIds) {
-    return this.getOneOrMany('/wvw/matches', matchIds, false, {"world": worldId});
+  getWVWMatches: function (worldId, matchIds) {
+    return this.getOneOrMany('/wvw/matches', matchIds, false, { "world": worldId });
   },
 
   /**
@@ -399,7 +450,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getWVWObjectives : function (objectiveIds) {
+  getWVWObjectives: function (objectiveIds) {
     return this.getOneOrMany('/wvw/objectives', objectiveIds);
   },
 
@@ -409,7 +460,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getTokenInfo : function () {
+  getTokenInfo: function () {
     return this.callAPI('/tokeninfo');
   },
 
@@ -420,7 +471,7 @@ GW2API.prototype = {
    *   Otherwise you'll just get currency id and value.
    * @return Promise
    */
-  getWallet : function (handleCurrencyTranslation) {
+  getWallet: function (handleCurrencyTranslation) {
     if (!handleCurrencyTranslation) {
       return this.callAPI('/account/wallet');
     }
@@ -449,13 +500,35 @@ GW2API.prototype = {
   },
 
   /**
+   * Loads Masteries
+   * 
+   * @param {Array<number>} masteryIds
+   * 
+   * @returns {Promise}
+   */
+  getMasteries: function (masteryIds) {
+    return this.getOneOrMany('/masteries', masteryIds, false);
+  },
+
+  /**
+  * Loads Finishers
+  * 
+  * @param {Array<number>} finisherIds
+  * 
+  * @returns {Promise}
+  */
+  getFinishers: function (finisherIds) {
+    return this.getOneOrMany('/finishers', finisherIds, false);
+  },
+
+  /**
    * Gets Dye Colors. If no ids are passed, all possible ids are returned.
    *
    * @param  {int|Array} colorIds
    *   <optional> An int or array of color ids.
    * @return {Promise}
    */
-  getColors : function (colorIds) {
+  getColors: function (colorIds) {
     return this.getOneOrMany('/colors', colorIds, false);
   },
 
@@ -463,7 +536,7 @@ GW2API.prototype = {
    * Returns the continents list
    * @return Promise
    */
-  getContinents : function () {
+  getContinents: function () {
     return this.callAPI('/continents');
   },
 
@@ -475,7 +548,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getFiles : function (fileIds) {
+  getFiles: function (fileIds) {
     return this.getOneOrMany('/files', fileIds, false);
   },
 
@@ -484,7 +557,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getBuildId : function () {
+  getBuildId: function () {
     return this.callAPI('/build');
   },
 
@@ -496,7 +569,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getQuaggans : function (quagganIds) {
+  getQuaggans: function (quagganIds) {
     return this.getOneOrMany('/quaggans', quagganIds, false);
   },
 
@@ -508,7 +581,7 @@ GW2API.prototype = {
    *
    * @return Promise
    */
-  getItems : function (itemIds) {
+  getItems: function (itemIds) {
     return this.getOneOrMany('/items', itemIds, false);
   },
 
@@ -519,7 +592,7 @@ GW2API.prototype = {
    *   <optional> Either an int materialId or an array of materialIds
    * @return Promise
    */
-  getMaterials : function (materialIds) {
+  getMaterials: function (materialIds) {
     return this.getOneOrMany('/materials', materialIds, false);
   },
 
@@ -530,7 +603,7 @@ GW2API.prototype = {
    *   <optional> Either an int or an array of mini ids.
    * @return {Promise}
    */
-  getMinis : function (miniIds) {
+  getMinis: function (miniIds) {
     return this.getOneOrMany('/minis', miniIds, false);
   },
 
@@ -541,7 +614,7 @@ GW2API.prototype = {
    *   <optional> Either an int recipeId or an array of recipeIds
    * @return Promise
    */
-  getRecipes : function (recipeIds) {
+  getRecipes: function (recipeIds) {
     return this.getOneOrMany('/recipes', recipeIds, false);
   },
 
@@ -555,14 +628,14 @@ GW2API.prototype = {
    *   Search for recipes which will produce this item.
    * @return {Promise}
    */
-  searchRecipes : function (inputItem, outputItem) {
+  searchRecipes: function (inputItem, outputItem) {
     if (inputItem && outputItem) {
       return new Promise(function (fulfill, reject) {
         reject('inputItem and outputItem are mutually exclusive options');
       });
     }
 
-    var options = _.omit({'input' : inputItem, 'output' : outputItem}, function (v, k) {
+    var options = _.omit({ 'input': inputItem, 'output': outputItem }, function (v, k) {
       if (!v) {
         return true;
       }
@@ -578,7 +651,7 @@ GW2API.prototype = {
    *   <optional> Either an int skinId or an array of skin ids
    * @return {Promise}
    */
-  getSkins : function (skinIds) {
+  getSkins: function (skinIds) {
     return this.getOneOrMany('/skins', skinIds, false);
   },
 
@@ -589,7 +662,7 @@ GW2API.prototype = {
    *   <optional> Either an int currencyId or an array of currenciyIds
    * @return Promise
    */
-  getCurrencies : function (currencyIds) {
+  getCurrencies: function (currencyIds) {
     return this.getOneOrMany('/currencies', currencyIds, false);
   },
 
@@ -600,8 +673,8 @@ GW2API.prototype = {
    *   <optional> Either an int achievementId or an array of achievementIds
    * @return Promise
    */
-  getAchievements : function (achievementIds) {
-    return this.getOneOrMany('/achievements', achievementIds, false, {"lang": this.getLang()});
+  getAchievements: function (achievementIds) {
+    return this.getOneOrMany('/achievements', achievementIds, false, { "lang": this.getLang() });
   },
 
   /**
@@ -613,7 +686,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getAchievementGroups : function (groupIds) {
+  getAchievementGroups: function (groupIds) {
     return this.getOneOrMany('achievements/groups', groupIds, false);
   },
 
@@ -625,7 +698,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getAchievementCategories : function (categoryIds) {
+  getAchievementCategories: function (categoryIds) {
     return this.getOneOrMany('achievements/categories', categoryIds, false);
   },
 
@@ -637,10 +710,43 @@ GW2API.prototype = {
    * Gets daily achievements. This will return an object with the various achievement
    * categories as keys. The current keys are "wvw", "pvp", and "pve"
    *
+   * @param {Boolean} autoTranslate
+   *
    * @return Promise
    */
-  getDailyAchievements : function () {
-    return this.callAPI('/achievements/daily', {"lang": this.getLang()}, false);
+  getDailyAchievements: function (autoTranslate) {
+    var p = this.callAPI('/achievements/daily', { "lang": this.getLang() }, false);
+    var that = this;
+
+    if (!autoTranslate) {
+      return p;
+    }
+
+    function getDeeperItemInfo(key, items) {
+      return that.getDeeperInfo(that.getAchievements, items, 100).then(function (res) {
+        var ob = {};
+        ob[key] = res;
+        return ob;
+      });
+    }
+
+    return p.then(function (achievements) {
+      var promises = [];
+
+      for (var i in achievements) {
+        if (!achievements.hasOwnProperty) {
+          continue;
+        }
+
+        promises.push(function (key) { return getDeeperItemInfo(i, achievements[i]) }(i));
+      }
+
+      return Promise.all(promises).then(function (promises) {
+        return promises.reduce(function (acc, item) {
+          return Object.assign(acc, item);
+        }, {});
+      });
+    });
   },
 
   /**
@@ -651,7 +757,7 @@ GW2API.prototype = {
    *   <optional> Either an int skillId or an array of skillIds.
    * @return {Promise}
    */
-  getSkills : function (skillIds) {
+  getSkills: function (skillIds) {
     return this.getOneOrMany('/skills', skillIds, false);
   },
 
@@ -681,8 +787,11 @@ GW2API.prototype = {
 
       chunks.forEach(function (c) {
         promises.push(that.getSkills(c).then(function (skills) {
-          var profSkills = [];
           return skills.filter(function (skill) {
+            if (!skill.professions) {
+              return false;
+            }
+
             if (skill.professions.indexOf(profession) == -1) {
               return false;
             }
@@ -716,7 +825,7 @@ GW2API.prototype = {
    *   <optional> Either an int specialization id or an array of them.
    * @return {Promise}
    */
-  getSpecializations : function (specializationIds) {
+  getSpecializations: function (specializationIds) {
     return this.getOneOrMany('/specializations', specializationIds, false);
   },
 
@@ -728,7 +837,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getProfessionSpecializations : function (profession) {
+  getProfessionSpecializations: function (profession) {
     var that = this;
     return this.getSpecializations().then(function (specializationIds) {
       // Doing this for the inherant chunking.
@@ -755,7 +864,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getTraits : function (traitIds) {
+  getTraits: function (traitIds) {
     return this.getOneOrMany('/traits', traitIds, false);
   },
 
@@ -769,7 +878,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getEmblems : function (foreOrBack, assetIds) {
+  getEmblems: function (foreOrBack, assetIds) {
     var subpoint = foreOrBack === 'foregrounds' ? 'foregrounds' : 'backgrounds';
     return this.getOneOrMany('/emblem/' + subpoint, assetIds);
   },
@@ -781,7 +890,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getGuildPermissions : function (permissionIds) {
+  getGuildPermissions: function (permissionIds) {
     return this.getOneOrMany('/guild/permissions', permissionIds);
   },
 
@@ -793,7 +902,7 @@ GW2API.prototype = {
    *
    * @return {Promise}
    */
-  getGuildUpgrades : function (upgradeIds) {
+  getGuildUpgrades: function (upgradeIds) {
     return this.getOneOrMany('/guild/upgrades', upgradeIds);
   },
 
@@ -853,7 +962,7 @@ GW2API.prototype = {
           }
 
           if (typeof items[i] == 'number') {
-            items[i] = {id: items[i]};
+            items[i] = { id: items[i] };
           }
 
           if (items[i].id === res.id) {
@@ -875,7 +984,7 @@ GW2API.prototype = {
    *
    * @return Promise
    */
-  getOneOrMany : function(endpoint, ids, requiresAuth, otherParams) {
+  getOneOrMany: function (endpoint, ids, requiresAuth, otherParams) {
     var params = {};
 
     if (typeof ids === 'number' || typeof ids === 'string') {
@@ -910,13 +1019,13 @@ GW2API.prototype = {
     }
 
     var options = {
-      url : this.baseUrl + endpoint
+      url: this.baseUrl + endpoint
     };
 
     if (requiresAuth) {
       if (this.useAuthHeader) {
         options['headers'] = {
-          'Authorization' : 'Bearer ' + this.getAPIKey()
+          'Authorization': 'Bearer ' + this.getAPIKey()
         }
       } else {
         params['access_token'] = this.getAPIKey();
@@ -947,11 +1056,18 @@ GW2API.prototype = {
     var that = this;
 
     return new Promise(function (fulfill, reject) {
-      request.get(options).on('response', function(response) {
+      request.get(options).on('response', function (response) {
         var dataStream = '';
+
+        if (response.statusCode != 200) {
+          // Error out if the response code isn't 200.
+          reject("The API Returned an error");
+          return;
+        }
+
         response.on('data', function (data) {
           dataStream += data;
-        }).on('end', function() {
+        }).on('end', function () {
           var data = JSON.parse(dataStream);
 
           if (that.storeInCache) {
@@ -962,9 +1078,9 @@ GW2API.prototype = {
         });
 
       })
-      .on('error', function(error) {
-        reject(error);
-      });
+        .on('error', function (error) {
+          reject(error);
+        });
     });
   }
 }
