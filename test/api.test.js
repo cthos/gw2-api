@@ -140,6 +140,7 @@ describe('GW2API', function () {
   });
 
   describe('Masteries', function () {
+    /*
     it('Should get account Masteries without translating them', function () {
       return api.getAccountMasteries().then(function (masts) {
         assert.ok(masts[0].id);
@@ -153,6 +154,7 @@ describe('GW2API', function () {
         assert.equal(true, typeof masts[0].name === 'string');
       });
     });
+    */
 
     it('Should get a single Mastery', function () {
       return api.getMasteries(8).then(function (mastery) {
@@ -218,32 +220,6 @@ describe('GW2API', function () {
         assert.equal(Array.isArray(res), true);
         assert.equal(res.length, 2);
       });
-    });
-  });
-
-  describe('Masteries', function () {
-    it ('Should have masteries', function (done) {
-      return api.getMasteries().then(function (res) {
-        assert.equal(res.length > 1, true);
-        done();
-      });
-    });
-
-    it('Should get a single mastery', function (done) {
-      return api.getMasteries(1).then(function (res) {
-        assert.equal(Array.isArray(res), false);
-        assert.equal(res.name, "Exalted Lore");
-        done();
-      });
-    });
-
-    it('Should get multiple masteries', function (done) {
-      return api.getMasteries([1, 2]).then(function (res) {
-        assert.equal(Array.isArray(res), true);
-        assert.equal(res.length, 2);
-        assert.equal(res[0].name, "Exalted Lore");
-        done();
-      })
     });
   });
 
