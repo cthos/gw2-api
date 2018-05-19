@@ -269,7 +269,7 @@ describe('GW2API', function () {
 
     it('Should search recipes by input', function () {
       return api.searchRecipes(46731).then(function (recipes) {
-        assert(recipes.indexOf(7840) > -1);
+        assert(recipes.indexOf(7849) > -1);
       });
     });
 
