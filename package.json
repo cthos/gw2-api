@@ -1,6 +1,6 @@
 {
   "name": "@cthos/gw2-api",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "GuildWars 2 API interface",
   "main": "index.js",
   "repository": {
