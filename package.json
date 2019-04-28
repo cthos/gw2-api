@@ -16,7 +16,7 @@
     "md5": "^2.2.1",
     "object.assign": "^4.0.3",
     "promise": "^7.0.4",
-    "request": "^2.86.0",
+    "request": "^2.88.0",
     "underscore": "^1.8.3"
   },
   "keywords": [
@@ -26,6 +26,6 @@
   "author": "cthos",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^3.5.3"
+    "mocha": "^6.1.4"
   }
 }
