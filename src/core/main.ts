@@ -158,7 +158,7 @@ export class GW2API {
    *
    * @return {Promise}
    */
-  public getDeeperInfo (endpointFunc: any, items: [any], chunkSize: number) {
+  public getDeeperInfo (endpointFunc: any, items: [any], chunkSize: number = 100) {
     var lookupIds = [];
     var promises = [];
     var that = this;
@@ -375,7 +375,7 @@ export class GW2API {
    *   <optional> Either an int achievementId or an array of achievementIds
    * @return Promise
    */
-  public async getAchievements(achievementIds?: [number]|number): Promise<any> {
+  public async getAchievements(achievementIds?: number[]|number): Promise<any> {
     return this.getOneOrMany('/achievements', achievementIds, false, { "lang": this.getLang() });
   };
   
@@ -467,5 +467,578 @@ export class GW2API {
     return p.then((masteries) => {
       return this.getDeeperInfo(this.getMasteries, masteries, 100);
     });
+  };
+  
+  /**
+   * Gets the account's finishers.
+   * 
+   * @param {Boolean} autoTranslate
+   * 
+   * @returns {Promise}
+   */
+  public async getAccountFinishers(autoTranslate: boolean) {
+    var p = this.callAPI('/account/finishers');
+
+    if (!autoTranslate) {
+      return p;
+    }
+
+    return p.then((finishers) => {
+      return this.getDeeperInfo(this.getFinishers, finishers, 100);
+    });
+  };
+  
+    /**
+   * Gets the account's unlocked minis.
+   *
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the items api.
+   * @return {Promise}
+   */
+  public async getAccountMinis(autoTranslateItems): Promise<any> {
+    const p = this.callAPI('/account/minis');
+
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then((minis) => {
+      return this.getDeeperInfo(this.getMinis, minis, 100);
+    });
+  };
+  
+  /**
+   * Gets the account's item skins.
+   *
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the items api.
+   * @return {Promise}
+   */
+  public async getAccountSkins(autoTranslateItems: boolean): Promise<any> {
+    var p = this.callAPI('/account/skins');
+
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then((skins) => {
+      return this.getDeeperInfo(this.getSkins, skins, 100);
+    });
+  };
+  
+  /**
+   * Gets an account's commerce transactions.
+   *
+   * @param {Boolean} current
+   *   If true, this will query current transactions. Otherwise it
+   *   will query historical transactions.
+   * @param {String} secondLevel
+   *   Either "buys" or "Sells"
+   * @return {Promise}
+   */
+  public async getCommerceTransactions(current: boolean, secondLevel: string): Promise<boolean> {
+    var endpoint = "/commerce/transactions/" + (current ? 'current' : 'history') + '/' + secondLevel;
+    return this.callAPI(endpoint);
+  };
+  
+  /**
+   * Gets commerce listings. If no item ids are passed, it will return
+   * a list of all possible ids.
+   *
+   * @param  {Int|Array} itemIds
+   *   Either an Int or Array of items
+   * @return {Promise}
+   */
+  public async getCommerceListings(itemIds: number[]|number): Promise<any> {
+    return this.getOneOrMany('/commerce/listings', itemIds, false);
+  };
+  
+  /**
+   * Returns the current gem buy and sell prices.
+   *
+   * Quantity _must_ be higher than needed to buy a single coin or gem.
+   *
+   * @param {String} gemOrCoin
+   *   The string 'gem' for gold cost to buy gems.
+   *   'coin' for gem price for coins.
+   * @param {Int} quantity
+   *   The number of coins or gems to exchange (this is a required parameter).
+   * @return {Promise}
+   */
+  public async getCommerceExchange(gemOrCoin: 'gems'|'coin', quantity: number): Promise<any> {
+    const second = gemOrCoin === 'gems' ? 'gems' : 'coins';
+    return this.callAPI('/commerce/exchange/' + second, { 'quantity': quantity }, false);
+  };
+  
+  /**
+   * Gets overall account pvp statistics.
+   *
+   * @return {Promise}
+   */
+  public async getPVPStats(): Promise<any> {
+    return this.callAPI('/pvp/stats');
+  };
+  
+  /**
+   * Gets PVP Game details. If ids are not passed a list of all game ids
+   * are returned.
+   *
+   * @param  {String|Array} gameIds
+   *   <optional> Either a gameId or an array of games you'd like more details
+   *   on. Note that GameId is a uuid.
+   * @return {Promise}
+   */
+  public async getPVPGames(gameIds: string[]|string): Promise<any> {
+    return this.getOneOrMany('/pvp/games', gameIds);
+  };
+
+  /**
+   * Gets WVW Matches.
+   *
+   * @param {Int} worldId
+   *   A world who's id is participating in the match.
+   * @param  {String|Array} matchIds
+   *   String match id, or an array of match ids.
+   *
+   * @return {Promise}
+   */
+  public async getWVWMatches(worldId: number, matchIds: number[]|number) {
+    return this.getOneOrMany('/wvw/matches', matchIds, false, { "world": worldId });
+  };
+
+  /**
+   * Gets WVW Objectives
+   *
+   * @param {String|Array} objectiveIds
+   *   <optional> Either an objectiveId or array of ids.
+   *
+   * @return {Promise}
+   */
+  public async getWVWObjectives(objectiveIds: string[]|string): Promise<any> {
+    return this.getOneOrMany('/wvw/objectives', objectiveIds);
+  };
+
+  /**
+   * Returns info about a given token. This token must be first set via
+   * this.setAPIKey.
+   *
+   * @return {Promise}
+   */
+  public async getTokenInfo(): Promise<any> {
+    return this.callAPI('/tokeninfo');
+  };
+  
+  /**
+   * Gets the wallet information associated with the current API token.
+   * @param  {boolean} handleCurrencyTranslation
+   *   <optional> If true, will automatically get the currency information.
+   *   Otherwise you'll just get currency id and value.
+   * @return Promise
+   */
+  public async getWallet(handleCurrencyTranslation: boolean): Promise<any> {
+    if (!handleCurrencyTranslation) {
+      return this.callAPI('/account/wallet');
+    }
+
+    return this.callAPI('/account/wallet').then((res) => {
+      var walletCurrencies = res;
+      var lookupIds: number[] = [];
+      for (var i = 0, len = res.length; i < len; i++) {
+        lookupIds.push(res[i].id as number);
+      }
+
+      return this.getCurrencies(lookupIds).then((res) => {
+        for (var i = 0, len = res.length; i < len; i++) {
+          for (var x = 0, xlen = walletCurrencies.length; x < xlen; x++) {
+            if (res[i].id == walletCurrencies[x].id) {
+              Object.assign(walletCurrencies[x], res[i]);
+              break;
+            }
+          }
+        }
+        return walletCurrencies;
+      });
+    });
+  };
+  
+  /**
+   * Loads Masteries
+   * 
+   * @param {Array<number>} masteryIds
+   * 
+   * @returns {Promise}
+   */
+  public async getMasteries(masteryIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/masteries', masteryIds, false);
+  };
+
+  /**
+  * Loads Finishers
+  * 
+  * @param {Array<number>} finisherIds
+  * 
+  * @returns {Promise}
+  */
+  public async getFinishers(finisherIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/finishers', finisherIds, false);
+  };
+
+  /**
+   * Gets Dye Colors. If no ids are passed, all possible ids are returned.
+   *
+   * @param  {int|Array} colorIds
+   *   <optional> An int or array of color ids.
+   * @return {Promise}
+   */
+  public async getColors(colorIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/colors', colorIds, false);
+  };
+
+  /**
+   * Returns the continents list
+   * @return Promise
+   */
+  public async getContinents(): Promise<any> {
+    return this.callAPI('/continents');
+  };
+
+  /**
+   * Returns commonly requested files.
+   *
+   * @param {String|Array} fileIds
+   *  Either a string file id or an array of ids.
+   *
+   * @return {Promise}
+   */
+  public async getFiles(fileIds?: string[]|string): Promise<any> {
+    return this.getOneOrMany('/files', fileIds, false);
+  };
+  
+  /**
+   * Returns the current build id.
+   *
+   * @return {Promise}
+   */
+  public async getBuildId(): Promise<any> {
+    return this.callAPI('/build');
+  };
+
+  /**
+   * Returns a list of Quaggans!
+   *
+   * @param {String|Array} quagganIds
+   *   <optional> a String quaggan id or an array of quaggan ids.
+   *
+   * @return {Promise}
+   */
+  public async getQuaggans(quagganIds?: string[]|string): Promise<any> {
+    return this.getOneOrMany('/quaggans', quagganIds, false);
+  };
+
+  /**
+   * Gets materials. If no ids are passed, this will return an array of all
+   * possible material ids.
+   * @param  {int|array} materialIds
+   *   <optional> Either an int materialId or an array of materialIds
+   * @return Promise
+   */
+  public async getMaterials(materialIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/materials', materialIds, false);
+  };
+
+  /**
+   * Gets minis. If no ids are passed, this will return an array of all
+   * possible mini ids.
+   * @param  {Int|Array}  miniIds
+   *   <optional> Either an int or an array of mini ids.
+   * @return {Promise}
+   */
+  public async getMinis(miniIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/minis', miniIds, false);
+  };
+  
+  /**
+   * Gets recipes. If no ids are passed, this will return an array of all
+   * possible recipe ids.
+   * @param  {int|array} recipeIds
+   *   <optional> Either an int recipeId or an array of recipeIds
+   * @return Promise
+   */
+  public async getRecipes(recipeIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/recipes', recipeIds, false);
+  };
+
+  /**
+   * Searches for recipes which match an item id. inputItem and outputItem
+   * are mutually exclusive.
+   *
+   * @param  {Int} inputItem
+   *   Search for recipes containing this item.
+   * @param  {Int} outputItem
+   *   Search for recipes which will produce this item.
+   * @return {Promise}
+   */
+  public async searchRecipes(inputItem: number, outputItem?: number): Promise<any> {
+    if (inputItem && outputItem) {
+      return new Promise(function (_fulfill, reject) {
+        reject('inputItem and outputItem are mutually exclusive options');
+      });
+    }
+
+    var options = _.omit({ 'input': inputItem, 'output': outputItem }, (v, _k)=> {
+      if (!v) {
+        return true;
+      }
+    });
+
+    return this.callAPI('/recipes/search', options, false);
+  };
+
+  /**
+   * Gets Skins. If no ids are passed, this returns an array of all skins.
+   *
+   * @param  {Int|Array} skinIds
+   *   <optional> Either an int skinId or an array of skin ids
+   * @return {Promise}
+   */
+  public async getSkins(skinIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/skins', skinIds, false);
+  };
+
+  /**
+   * Gets currencies. If no ids are passed, this will return an array of all
+   * possible material ids.
+   * @param  {int|array} currencyIds
+   *   <optional> Either an int currencyId or an array of currenciyIds
+   * @return Promise
+   */
+  public async getCurrencies(currencyIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/currencies', currencyIds, false);
+  };
+  
+  /**
+   * Gets achievement groups. Examples being "Heart of Thorns, Central Tyria"
+   *
+   * @param {String|Array} groupIds
+   *  <optional> Either a groupId or array of group ids. Note that for this, ids
+   *  are guids.
+   *
+   * @return {Promise}
+   */
+  public async getAchievementGroups(groupIds?: string[]|string): Promise<any> {
+    return this.getOneOrMany('achievements/groups', groupIds, false);
+  };
+
+  /**
+   * Gets achievement categories. Examples being "Slayer, Hero of Tyria"
+   *
+   * @param {Int|Array} categoryIds
+   *  <optional> Either an int or an array of category ids.
+   *
+   * @return {Promise}
+   */
+  public async getAchievementCategories(categoryIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('achievements/categories', categoryIds, false);
+  };
+  
+  /**
+   * Gets the daily achievements.
+   * 
+   * @param {boolean} autoTranslate
+   * 
+   * @returns {Promise<any>}
+   */
+  public async getDailyAchievements(autoTranslate = true): Promise<any> {
+    var p = this.callAPI('/achievements/daily', { "lang": this.getLang() }, false);
+    var that = this;
+
+    if (!autoTranslate) {
+      return p;
+    }
+
+    function getDeeperItemInfo(key, items) {
+      return that.getDeeperInfo(that.getAchievements, items, 100).then(function (res) {
+        var ob = {};
+        ob[key] = res;
+        return ob;
+      });
+    }
+
+    return p.then(function (achievements) {
+      var promises = [];
+
+      for (var i in achievements) {
+        if (!achievements.hasOwnProperty) {
+          continue;
+        }
+
+        promises.push(function (_key) { return getDeeperItemInfo(i, achievements[i]) }(i));
+      }
+
+      return Promise.all(promises).then(function (promises) {
+        return promises.reduce(function (acc, item) {
+          return Object.assign(acc, item);
+        }, {});
+      });
+    });
+  };
+  
+  /**
+   * Gets skills. If no ids are passed, this will return an array of all possible
+   * skills.
+   *
+   * @param  {int|array} skillIds
+   *   <optional> Either an int skillId or an array of skillIds.
+   * @return {Promise}
+   */
+  public async getSkills(skillIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/skills', skillIds, false);
+  };
+
+  /**
+   * [Helper Method] Gets skills for a particular profession.
+   *
+   * @param  {String} profession
+   *   The string key to match profession on.
+   * @param {String} skillType
+   *   <optional> The type of skills to return ("Weapon", "Heal", etc.)
+   * @param {Boolean} includeBundles
+   *   <optional> Whether or not to include bundles as part of the return list.
+   *   This option is meaningless if skillType == 'Bundle'
+   * @return {Promise}
+   */
+  public async getProfessionSkills(profession: string, skillType: string, includeBundles: boolean): Promise<any> {
+    var that = this;
+
+    if (typeof includeBundles == 'undefined') {
+      includeBundles = false;
+    }
+
+    return this.getSkills().then(function (skillIds) {
+      // Break skills into chunks.
+      var chunks = chunk(skillIds, 50);
+      var promises = [];
+
+      chunks.forEach(function (c) {
+        promises.push(that.getSkills(c).then(function (skills) {
+          return skills.filter(function (skill) {
+            if (!skill.professions) {
+              return false;
+            }
+
+            if (skill.professions.indexOf(profession) == -1) {
+              return false;
+            }
+
+            if (!includeBundles && skill.type == 'Bundle') {
+              return false;
+            }
+
+            if (skillType && skill.type == skillType) {
+              return true;
+            } else if (skillType) {
+              return false;
+            }
+
+            return true;
+          });
+        }));
+      });
+
+      return Promise.all(promises).then(function (results) {
+        return [].concat.apply([], results);
+      });
+    });
+  };
+  
+  /**
+   * Gets Specializations. If no ids are passed this will return an array of all
+   * ids.
+   *
+   * @param  {Int|Array} specializationIds
+   *   <optional> Either an int specialization id or an array of them.
+   * @return {Promise}
+   */
+  public async getSpecializations(specializationIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/specializations', specializationIds, false);
+  };
+
+  /**
+   * Gets a list of profession specializations.
+   *
+   * @param  {String} profession
+   *   Profession name. Remember to uppercase the first letter.
+   *
+   * @return {Promise}
+   */
+  public async getProfessionSpecializations(profession: string) {
+    var that = this;
+    return this.getSpecializations().then(function (specializationIds) {
+      // Doing this for the inherant chunking.
+      return that.getDeeperInfo(that.getSpecializations, specializationIds);
+    }).then(function (fullSpecializations) {
+      var specs = [];
+      fullSpecializations.forEach(function (spec) {
+        if (spec.profession !== profession) {
+          return;
+        }
+        specs.push(spec);
+      });
+
+      return specs;
+    });
+  };
+
+  /**
+   * Gets a list of traits from the passed ids. If no traitIds are passed
+   * all trait ids are returned.
+   *
+   * @param  {Int|Array} traitIds
+   *   <optional> An int or array of trait ids.
+   *
+   * @return {Promise}
+   */
+  public async getTraits(traitIds?: number[]|number): Promise<any> {
+    return this.getOneOrMany('/traits', traitIds, false);
+  };
+  
+  /**
+   * Returns the assets required to render emblems.
+   *
+   * @param  {String} foreOrBack
+   *   Either the string "foregrounds" or "backgrounds"
+   * @param  {Int|Array} assetIds
+   *   <optional> Either an Int or Array assetId
+   *
+   * @return {Promise}
+   */
+  public async getEmblems(foreOrBack: 'foregrounds'|'backgrounds', assetIds?: number[]|number): Promise<any> {
+    var subpoint = foreOrBack === 'foregrounds' ? 'foregrounds' : 'backgrounds';
+    return this.getOneOrMany('/emblem/' + subpoint, assetIds);
+  };
+
+  /**
+   * Gets info about guild permissions (unauthenticated).
+   *
+   * @param  {String|Array} permissionIds
+   *
+   * @return {Promise}
+   */
+  public async getGuildPermissions(permissionIds: string[]|string): Promise<any> {
+    return this.getOneOrMany('/guild/permissions', permissionIds);
+  };
+
+  /**
+   * Gets info about guild upgrades (unauthenticated).
+   *
+   * @param  {Int|Array} upgradeIds
+   *   <optional> Either an int or an array of upgrade ids.
+   *
+   * @return {Promise}
+   */
+  public async getGuildUpgrades(upgradeIds: number[]|number): Promise<any> {
+    return this.getOneOrMany('/guild/upgrades', upgradeIds);
   };
 }

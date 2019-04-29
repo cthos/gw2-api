@@ -1,24 +1,32 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false,
-    "declaration": false,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "baseUrl": "lib",
     "lib": [
+      "dom",
       "es2015"
     ],
-    "moduleResolution": "node",
     "module": "commonjs",
-    "target": "es2015",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "jsx": "react",
-    "jsxFactory": "h"
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "target": "es5",
+    "outDir": "lib"
+  },
+  "paths" : {
+    "cross-fetch" : ["node_modules/cross-fetch/dist"]
   },
   "include": [
-    "src"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
-  ]
+    "src/**/*.spec.ts",
+    "**/*.spec.ts"
+  ],
+  "compileOnSave": false,
+  "atom": {
+    "rewriteTsconfig": false
+  }
 }
