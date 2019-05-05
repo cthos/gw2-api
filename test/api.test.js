@@ -2,10 +2,8 @@ var assert = require('assert');
 var gw2 = require('../lib/index');
 var md5 = require('md5');
 
-console.log(gw2);
-
-var api = new gw2.gw2();
-var mem = new gw2.memStore();
+var api = new gw2.GW2API();
+var mem = new gw2.Memstore();
 
 api.setStorage(mem);
 
