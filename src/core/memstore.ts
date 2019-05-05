@@ -1,12 +1,12 @@
 export class Memstore {
   protected cache: any = {};
   
-  public setItem(key, val) {
+  public async setItem(key: string, val: string) {
     this.cache[key] = val;
     return this;
   };
 
-  public getItem(key: string) {
+  public async getItem(key: string) {
     return this.cache[key];
   }
 }

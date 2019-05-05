@@ -51,9 +51,9 @@ describe('GW2API', function () {
       api.setCache(false);
     });
 
-    it('Should store continents in cache', function () {
-      return api.getContinents().then(function (res) {
-        var continents = api.getStorage().getItem(md5('/continents'));
+    it('Should store continents in cache', async () => {
+      return api.getContinents().then(async (res) => {
+        var continents = await api.getStorage().getItem(md5('/continents'));
         continents = JSON.parse(continents);
         assert.equal(continents.length, 2);
         assert.deepEqual(res, continents);

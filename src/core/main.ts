@@ -125,7 +125,7 @@ export class GW2API {
    * @return this
    */
   public async setAPIKey(key: string) {
-    this.storage.setItem('apiKey', key);
+    await this.storage.setItem('apiKey', key);
     return this;
   };
 
@@ -134,7 +134,7 @@ export class GW2API {
    *
    * @return string
    */
-  public getAPIKey () {
+  public async getAPIKey () {
     return this.storage.getItem('apiKey');
   };
   
@@ -242,7 +242,7 @@ export class GW2API {
    *
    * @return Promise
    */
-  public async callAPI(endpoint: string, params?: any, requiresAuth?: any): Promise<any> {
+  public async callAPI(endpoint: string, params?: any, requiresAuth: any = true): Promise<any> {
     if (typeof requiresAuth == "undefined") {
       requiresAuth = true;
     }
@@ -258,7 +258,7 @@ export class GW2API {
     if (requiresAuth) {
       if (this.useAuthHeader) {
         options['headers'] = {
-          'Authorization': 'Bearer ' + this.getAPIKey()
+          'Authorization': 'Bearer ' + await this.getAPIKey(),
         }
       } else {
         params['access_token'] = await this.getAPIKey();
@@ -281,35 +281,35 @@ export class GW2API {
     const cacheKey = md5(endpoint + keystr);
     let cachedItem;
 
-    if (this.cache && (cachedItem = this.storage.getItem(cacheKey))) {
+    if (this.cache && (cachedItem = await this.storage.getItem(cacheKey))) {
       cachedItem = JSON.parse(cachedItem);
-      return new Promise(function (fulfill, _reject) { fulfill(cachedItem); });
+      return cachedItem;
     }
 
     return new Promise((fulfill, reject) => {
-      req.get(options).on('response', function (response) {
+      req.get(options).on('response', (response) => {
         var dataStream = '';
 
-        if (response.statusCode != 200) {
-          // Error out if the response code isn't 200.
+        if (response.statusCode != 200 && response.statusCode != 206) {
+          // Error out if the response code isn't 200/206.
           reject("The API Returned an error");
           return;
         }
 
-        response.on('data', function (data) {
+        response.on('data', (data) => {
           dataStream += data;
-        }).on('end', function () {
+        }).on('end', async () => {
           var data = JSON.parse(dataStream);
-
+            
           if (this.storeInCache) {
-            this.storage.setItem(cacheKey, dataStream);
+            await this.storage.setItem(cacheKey, dataStream);
           }
 
           fulfill(data);
         });
 
       })
-        .on('error', function (error) {
+        .on('error', (error) => {
           reject(error);
         });
     });
@@ -782,7 +782,7 @@ export class GW2API {
    */
   public async searchRecipes(inputItem: number, outputItem?: number): Promise<any> {
     if (inputItem && outputItem) {
-      return new Promise(function (_fulfill, reject) {
+      return new Promise((_fulfill, reject) => {
         reject('inputItem and outputItem are mutually exclusive options');
       });
     }
@@ -866,7 +866,7 @@ export class GW2API {
       });
     }
 
-    return p.then(function (achievements) {
+    return p.then((achievements) => {
       var promises = [];
 
       for (var i in achievements) {
@@ -877,8 +877,8 @@ export class GW2API {
         promises.push(function (_key) { return getDeeperItemInfo(i, achievements[i]) }(i));
       }
 
-      return Promise.all(promises).then(function (promises) {
-        return promises.reduce(function (acc, item) {
+      return Promise.all(promises).then((promises) => {
+        return promises.reduce((acc, item) => {
           return Object.assign(acc, item);
         }, {});
       });
@@ -916,14 +916,14 @@ export class GW2API {
       includeBundles = false;
     }
 
-    return this.getSkills().then(function (skillIds) {
+    return this.getSkills().then((skillIds) => {
       // Break skills into chunks.
       var chunks = chunk(skillIds, 50);
       var promises = [];
 
-      chunks.forEach(function (c) {
-        promises.push(that.getSkills(c).then(function (skills) {
-          return skills.filter(function (skill) {
+      chunks.forEach((c) => {
+        promises.push(that.getSkills(c).then((skills) => {
+          return skills.filter((skill) => {
             if (!skill.professions) {
               return false;
             }
@@ -947,7 +947,7 @@ export class GW2API {
         }));
       });
 
-      return Promise.all(promises).then(function (results) {
+      return Promise.all(promises).then((results) => {
         return [].concat.apply([], results);
       });
     });
@@ -975,12 +975,12 @@ export class GW2API {
    */
   public async getProfessionSpecializations(profession: string) {
     var that = this;
-    return this.getSpecializations().then(function (specializationIds) {
+    return this.getSpecializations().then((specializationIds) => {
       // Doing this for the inherant chunking.
-      return that.getDeeperInfo(that.getSpecializations, specializationIds);
-    }).then(function (fullSpecializations) {
+      return this.getDeeperInfo(that.getSpecializations, specializationIds);
+    }).then((fullSpecializations) => {
       var specs = [];
-      fullSpecializations.forEach(function (spec) {
+      fullSpecializations.forEach((spec) => {
         if (spec.profession !== profession) {
           return;
         }
