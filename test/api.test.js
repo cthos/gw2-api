@@ -1,9 +1,9 @@
 var assert = require('assert');
-var gw2 = require('../index');
+var gw2 = require('../lib/index');
 var md5 = require('md5');
 
-var api = new gw2.gw2();
-var mem = new gw2.memStore();
+var api = new gw2.GW2API();
+var mem = new gw2.Memstore();
 
 api.setStorage(mem);
 
@@ -51,9 +51,9 @@ describe('GW2API', function () {
       api.setCache(false);
     });
 
-    it('Should store continents in cache', function () {
-      return api.getContinents().then(function (res) {
-        var continents = api.getStorage().getItem(md5('/continents'));
+    it('Should store continents in cache', async () => {
+      return api.getContinents().then(async (res) => {
+        var continents = await api.getStorage().getItem(md5('/continents'));
         continents = JSON.parse(continents);
         assert.equal(continents.length, 2);
         assert.deepEqual(res, continents);
@@ -63,7 +63,7 @@ describe('GW2API', function () {
     it('Should return different results on single item calls', function () {
       var itemResult1;
 
-      return api.getItems(15).then(function (res) {
+      return api.getItems(412).then(function (res) {
         itemResult1 = res;
         return api.getItems(411);
       }).then(function (res) {
@@ -209,14 +209,15 @@ describe('GW2API', function () {
     });
 
     it('Should get a single item', function () {
-      return api.getItems(15).then(function (res) {
+      return api.getItems(411).then(function (res) {
         assert.equal(Array.isArray(res), false);
-        assert.equal(res.name, "Abomination Hammer");
+        assert.equal(res.name, "Berserker's Cabalist Coat of Infiltration");
       });
     });
 
     it('Should get multiple items', function () {
-      return api.getItems([15, 411]).then(function (res) {
+      return api.getItems([412, 411]).then(function (res) {
+        console.log(res);
         assert.equal(Array.isArray(res), true);
         assert.equal(res.length, 2);
       });
@@ -295,8 +296,8 @@ describe('GW2API', function () {
     });
 
     it('Should get a single achievement', function () {
-      return api.getAchievements(1344).then(function (res) {
-        assert.equal(res.name, "Live on the Edge");
+      return api.getAchievements(1840).then(function (res) {
+        assert.equal(res.name, "Daily Completionist");
       });
     });
 

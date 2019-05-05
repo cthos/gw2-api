@@ -4,3 +4,6 @@ auth-test.js
 Vagrantfile
 *.iml
 .idea
+_bundles
+lib
+lib-es6
