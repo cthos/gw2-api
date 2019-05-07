@@ -217,7 +217,6 @@ describe('GW2API', function () {
 
     it('Should get multiple items', function () {
       return api.getItems([412, 411]).then(function (res) {
-        console.log(res);
         assert.equal(Array.isArray(res), true);
         assert.equal(res.length, 2);
       });
