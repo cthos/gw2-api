@@ -2,6 +2,8 @@
 
 ![Build Status](https://travis-ci.org/cthos/gw2-api.svg?branch=master)
 
+> ⚠️ 3.0.0 is a breaking change, and changes how the project is compiled / exported. I've not _quite_ made a UMD bundle for this yet.
+
 This is a node module which is designed to facilitate communication with the Guild Wars 2 API.
 
 The goal is to provide some convenience methods around getting things out of the API. This includes ways to cache API call results in memory, localStorage, or whatever storage system you desire. This is useful for the big aggregate lists (for example `/items`).
@@ -14,7 +16,40 @@ The `gw2` package comes with 2 objects exported. `gw2` is the actual interface t
 
 [Static API Documentation Page](http://cthos.github.com/gw2-api)
 
-## Example
+## Example (for ^3.0.0)
+
+### Typescript
+```ts
+import {GW2API, Memstore} from '@cthos/gw2-api';
+
+const api = new GW2API();
+
+// Set storage system to RAM if no access to localStorage
+api.setStorage(new Memstore());
+
+// Get daily pve achievement names:
+const achievements = await api.getDailyAchievements(true); // the true is default, but this will translate the IDs to their objects directly
+const achievementNames = achievements.map(a => a.name);
+
+// Get all character names associated with an account.
+await api.setAPIKey('YOUR-TOKEN-GOES-HERE');
+
+api.getCharacters().then(function (res) {
+  for (var i = 0, len = res.length; i < len; i++) {
+    // This API call just returns an array of string character names.
+    console.log(res[i]);
+  }
+});
+
+// Get Character Details
+api.getCharacters('Zojja').then(function (res) {
+  console.log(res);
+});
+```
+
+### Javascript
+
+## Example (for 2.2.2)
 
 ```js
 var gw2 = require('gw2-api');
