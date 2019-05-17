@@ -527,6 +527,33 @@ export class GW2API {
       return this.getDeeperInfo(this.getSkins, skins, 100);
     });
   };
+
+  /**
+   * Gets an account's world boss progression for this reset period.
+   * 
+   * @param  {Boolean} autoTranslateItems
+   *   <optional> If passed as true, will automatically get item descriptions
+   *   from the items api.
+   * @return {Promise}
+   */
+  public async getAccountWorldBosses(autoTranslateItems: boolean = true): Promise<any> {
+    const p = this.callAPI('/account/worldbosses');
+
+    if (!autoTranslateItems) {
+      return p;
+    }
+
+    return p.then(bosses => {
+      return this.getDeeperInfo(this.getWorldBosses, bosses, 100);
+    });
+  }
+
+  /**
+   * Gets world bosses.
+   */
+  public async getWorldBosses(ids?: number[]|number): Promise<any> {
+    return this.getOneOrMany('worldbosses', ids, false);
+  }
   
   /**
    * Gets an account's commerce transactions.
@@ -590,7 +617,7 @@ export class GW2API {
    *   on. Note that GameId is a uuid.
    * @return {Promise}
    */
-  public async getPVPGames(gameIds: string[]|string): Promise<any> {
+  public async getPVPGames(gameIds?: string[]|string): Promise<any> {
     return this.getOneOrMany('/pvp/games', gameIds);
   };
 
@@ -616,7 +643,7 @@ export class GW2API {
    *
    * @return {Promise}
    */
-  public async getWVWObjectives(objectiveIds: string[]|string): Promise<any> {
+  public async getWVWObjectives(objectiveIds?: string[]|string): Promise<any> {
     return this.getOneOrMany('/wvw/objectives', objectiveIds);
   };
 
