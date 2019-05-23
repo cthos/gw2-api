@@ -4,7 +4,7 @@
 
 > ⚠️ 3.0.0 is a breaking change, and changes how the project is compiled / exported. I've not _quite_ made a UMD bundle for this yet.
 
-This is a node module which is designed to facilitate communication with the Guild Wars 2 API.
+This is a node module which is designed to facilitate communication with the Guild Wars 2 API. It is fan maintained, and has no official relationship with Arenanet or GuildWars 2 (legal disclaimer at the bottom).
 
 The goal is to provide some convenience methods around getting things out of the API. This includes ways to cache API call results in memory, localStorage, or whatever storage system you desire. This is useful for the big aggregate lists (for example `/items`).
 
