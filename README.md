@@ -1,3 +1,9 @@
+## ⚠️ This repository has moved to gitlab.
+
+Please visit here for project updates: https://gitlab.com/cthos/gw2-api/
+
+This project will no longer be maintained on Github.
+
 ## GW2-API
 
 ![Build Status](https://travis-ci.org/cthos/gw2-api.svg?branch=master)
